@@ -4,8 +4,56 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "37f69a5e0cab9f8bec5417b52afb09a8",
+    "content-hash": "385dcb3dd8b8eab952a5fe7dff45920f",
     "packages": [
+        {
+            "name": "algb12/graph-ds",
+            "version": "1.0.9",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/algb12/GraphDS.git",
+                "reference": "be91927b9b88aa83a4c261b908afc9dd4837956a"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/algb12/GraphDS/zipball/be91927b9b88aa83a4c261b908afc9dd4837956a",
+                "reference": "be91927b9b88aa83a4c261b908afc9dd4837956a",
+                "shasum": ""
+            },
+            "require": {
+                "ext-dom": "*",
+                "ext-simplexml": "*",
+                "php": ">=5.3.0"
+            },
+            "require-dev": {
+                "codeclimate/php-test-reporter": "^0.4.4",
+                "php": ">=5.4",
+                "phpunit/phpunit": "7.0.*"
+            },
+            "type": "library",
+            "autoload": {
+                "psr-4": {
+                    "GraphDS\\": "src",
+                    "Tests\\": "tests"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Alex Gilburg",
+                    "email": "algb12.19@gmail.com"
+                }
+            ],
+            "description": "A fast implementation of the graph data-structure in PHP",
+            "support": {
+                "issues": "https://github.com/algb12/GraphDS/issues",
+                "source": "https://github.com/algb12/GraphDS/tree/1.0.9"
+            },
+            "time": "2019-03-31T03:03:30+00:00"
+        },
         {
             "name": "psr/cache",
             "version": "1.0.1",
