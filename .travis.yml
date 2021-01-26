@@ -1,0 +1,15 @@
+language: php
+
+php:
+  - "8"
+
+services:
+  - docker
+
+install: make install
+
+script: make test
+
+branches:
+  only:
+    - main
