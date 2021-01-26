@@ -19,7 +19,7 @@ class GameController extends AbstractController
     {
         $this->board = new Board(7, 7);
         $this->initEmptyBoard();
-
+        $this->initObstacles();
         return $this->render('game/game.html.twig', [
             'board' => $this->board
         ]);
@@ -49,6 +49,7 @@ class GameController extends AbstractController
     private function initObstacles()
     {
         foreach ($this->obstacles as $obstacle) {
+            $this->board->addObstacle($obstacle);
         }
     }
 }

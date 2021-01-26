@@ -10,6 +10,7 @@ class Board
     const EAST = "east";
     const NORTH = "north";
     const SOUTH = "south";
+    const OBSTACLE = "obstacle";
 
     /** @Column(type="integer") */
     private $id;
@@ -45,7 +46,7 @@ class Board
 
     public function addObstacle($coordinate)
     {
-        if (in_array($coordinate, $this->graph->vertices)) {
+        if (!empty($this->graph->vertices[$this->coordinateToString($coordinate)])) {
             $this->graph->removeVertex($this->coordinateToString($coordinate));
         }
     }
@@ -60,6 +61,12 @@ class Board
         return $this->width;
     }
 
+    public function getCellType($x, $y) {
+        $coordinate = array($x,$y);
+        if (empty($this->graph->vertices[$this->coordinateToString($coordinate)])) {
+            return Board::OBSTACLE;
+        }
+    }
     private function coordinateToString($coordinate)
     {
         list($x, $y) = $coordinate;
