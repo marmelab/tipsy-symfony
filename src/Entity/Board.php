@@ -3,6 +3,8 @@
 namespace App\Entity;
 
 use GraphDS\Graph\DirectedGraph;
+use Doctrine\ORM\Mapping as ORM;
+
 
 class Board
 {
@@ -15,7 +17,11 @@ class Board
     const BLUE = "blue";
     const BLACK = "black";
 
-    /** @Column(type="integer") */
+    /**
+     * @ORM\Id()
+     * @ORM\GeneratedValue()
+     * @ORM\Column(type="integer")
+     */
     private $id;
 
     /** @Column(type="integer") */

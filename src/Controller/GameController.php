@@ -9,7 +9,6 @@ use Symfony\Component\HttpFoundation\Request;
 
 class GameController extends AbstractController
 {
-
     private $gameService;
 
     public function __construct(GameService $gameService){
@@ -21,4 +20,12 @@ class GameController extends AbstractController
             'board' => $this->gameService->newGame(),
         ]);
     }
+
+    public function show(Board $board)
+    {
+        return $this->render('game/game.html.twig', [
+            'board' => $board
+        ]);
+    }
+
 }
