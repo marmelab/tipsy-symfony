@@ -6,12 +6,17 @@
 
 <style>
     .cell{
-        width: 10px;
-        height: 10px;
+        width: 20px;
+        height: 20px;
         border : 1px solid black
     }
     .obstacle{
         background-color: black
+    }
+    .puck{
+        width: 20px;
+        height: 20px;
+        border-radius: 10px
     }
     .game{
         display: flex;
@@ -22,7 +27,12 @@
         <div class="row">
             {% for y in range(0, board.height - 1 ) %}
                 {% set type= board.getCellType(x,y) %}
-                <div class="cell {{ type }}"></div>
+                <div class="cell {{ type }}">
+                {% set puck= board.getPuck(x,y) %}
+                {% if puck %}
+                    <div class="puck" style="background-color:{{puck}}"></div>
+                {% endif %}
+                </div>
             {% endfor %}
         </div>
     {% endfor %}
