@@ -1,0 +1,40 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Tipsy{% endblock %}
+
+{% block body %}
+
+<style>
+    .cell{
+        width: 20px;
+        height: 20px;
+        border : 1px solid black
+    }
+    .obstacle{
+        background-color: black
+    }
+    .puck{
+        width: 20px;
+        height: 20px;
+        border-radius: 10px
+    }
+    .game{
+        display: flex;
+    }
+</style>
+<div class="game">
+    {% for x in range(0, board.width - 1 ) %}
+        <div class="row">
+            {% for y in range(0, board.height - 1 ) %}
+                {% set type= board.getCellType(x,y) %}
+                <div class="cell {{ type }}">
+                {% set puck= board.getPuck(x,y) %}
+                {% if puck %}
+                    <div class="puck" style="background-color:{{puck}}"></div>
+                {% endif %}
+                </div>
+            {% endfor %}
+        </div>
+    {% endfor %}
+</div>
+{% endblock %}
