@@ -71,8 +71,7 @@ class GameService
     }
 
     public function tilt(Board $board, String $direction){
-        $board->tilt($direction);
-        return $board;
+        return $board->tilt($direction);
     }
 
 

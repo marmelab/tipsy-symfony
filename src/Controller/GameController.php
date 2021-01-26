@@ -43,16 +43,16 @@ class GameController extends AbstractController
 
     public function action(Request $request)
     {
-        $action = $request->query->get('action');
-        $board = $this->getSessionBoard($request);
-        $this->gameService->tilt($board, $action);
+        $playerHash = $request->cookies->get($this::COOKIE_KEY);
+        $board = $this->session->get($playerHash);
+
+        $action = $request->get('action');
+
+        $board = $this->gameService->tilt($board, $action);
+        $this->session->set($playerHash, $board);
+
         return $this->redirectToRoute('game');
 
-    }
-
-    private function getSessionBoard(Request $request) {
-        $playerHash = $request->cookies->get($this::COOKIE_KEY);
-        return $this->session->get($playerHash);
     }
 
     protected function generatePlayerHash()

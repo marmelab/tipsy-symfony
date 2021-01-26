@@ -170,11 +170,11 @@ class Board
 
     public function tilt($direction)
     {
-        $pucks = $this->getPucks();
         foreach ($this->getPucks() as $puck) {
             if (!empty($puck) && array_search($puck, $this->graph->vertices)) {
                 $this->movePuckTo($puck, $direction);
             }
         }
+        return $this;
     }
 }
