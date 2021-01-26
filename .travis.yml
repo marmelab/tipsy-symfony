@@ -12,4 +12,4 @@ script: make test
 
 branches:
   only:
-    - main
+    - master
