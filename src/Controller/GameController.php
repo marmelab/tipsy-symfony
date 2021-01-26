@@ -11,7 +11,7 @@ use Symfony\Component\HttpFoundation\Session\SessionInterface;
 
 class GameController extends AbstractController
 {
-    const COOKIE_KEY='tipsy-game';
+    const COOKIE_KEY = 'tipsy-game';
     private $gameService;
     private $session;
 
@@ -39,6 +39,20 @@ class GameController extends AbstractController
         return $this->render('game/game.html.twig', [
             'board' => $board
         ]);
+    }
+
+    public function action(Request $request)
+    {
+        $action = $request->query->get('action');
+        $board = $this->getSessionBoard($request);
+        $this->gameService->tilt($board, $action);
+        return $this->redirectToRoute('game');
+
+    }
+
+    private function getSessionBoard(Request $request) {
+        $playerHash = $request->cookies->get($this::COOKIE_KEY);
+        return $this->session->get($playerHash);
     }
 
     protected function generatePlayerHash()

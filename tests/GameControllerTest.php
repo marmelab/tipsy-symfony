@@ -11,8 +11,7 @@ class GameControllerTest extends WebTestCase
         $client = static::createClient();
         $crawler = $client->request('GET', '/');
 
-        $this->assertResponseIsSuccessful();
-        $this->assertSelectorExists('.game');
-        
+        $this->assertTrue($client->getResponse()->isRedirect());
+
     }
 }

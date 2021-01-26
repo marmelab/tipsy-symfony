@@ -4,3 +4,8 @@ index:
 game:
    path: /game
    controller: App\Controller\GameController::show
+
+game_action:
+   path: /game
+   methods: POST
+   controller: App\Controller\GameController::action

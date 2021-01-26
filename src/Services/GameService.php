@@ -32,7 +32,7 @@ class GameService
         return $board;
     }
 
-    private function initPucks($board)
+    private function initPucks(Board $board)
     {
         foreach ($this->red_pucks as $red_puck) {
             $board->addPuck($red_puck, Board::RED);
@@ -43,7 +43,7 @@ class GameService
         $board->addPuck($this->black_puck, Board::BLACK);
     }
 
-    private function initEmptyBoard($board)
+    private function initEmptyBoard(Board $board)
     {
         foreach (range(0, $board->getWidth() - 1) as $x) {
             foreach (range(0, $board->getHeight() - 1) as $y) {
@@ -63,10 +63,17 @@ class GameService
         }
     }
 
-    private function initObstacles($board)
+    private function initObstacles(Board $board)
     {
         foreach ($this->obstacles as $obstacle) {
             $board->addObstacle($obstacle);
         }
     }
+
+    public function tilt(Board $board, String $direction){
+        $board->tilt($direction);
+        return $board;
+    }
+
+
 }
