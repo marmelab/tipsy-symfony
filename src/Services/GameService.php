@@ -3,6 +3,8 @@
 namespace App\Services;
 
 use App\Entity\Board;
+use App\Repository\BoardRepository;
+use Doctrine\ORM\EntityManagerInterface;
 
 class GameService
 {

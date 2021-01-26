@@ -2,5 +2,5 @@ index:
    path: /
    controller: App\Controller\GameController::new
 game:
-   path: /game/{id}
+   path: /game
    controller: App\Controller\GameController::show

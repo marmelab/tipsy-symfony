@@ -17,19 +17,11 @@ class Board
     const BLUE = "blue";
     const BLACK = "black";
 
-    /**
-     * @ORM\Id()
-     * @ORM\GeneratedValue()
-     * @ORM\Column(type="integer")
-     */
     private $id;
 
-    /** @Column(type="integer") */
     private $width = 7;
 
-    /** @Column(type="integer") */
     private $height = 7;
-
 
     private $graph;
 
@@ -77,6 +69,10 @@ class Board
         return $this->width;
     }
 
+    public function getId()
+    {
+        return $this->id;
+    }
     public function getCellType($x, $y)
     {
         $coordinate = array($x, $y);
