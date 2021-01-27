@@ -10,14 +10,15 @@ class GameServiceTest extends TestCase
         // GIVEN
         $gameService = new GameService();
         $board = $gameService->newGame();
-        $this->assertEquals($board->getCellType(3,3),Board::BLACK);
+        $this->assertEquals($board->getCellType(3,3)['color'],Board::BLACK);
         // WHEN
         $board = $gameService->tilt($board,Board::EAST);
 
         // THEN
-        $this->assertEquals($board->getCellType(3,3),Board::RED);
-        $this->assertEquals($board->getCellType(4,3),Board::BLACK);
-        $this->assertEquals($board->getCellType(5,3),Board::RED);
+        var_dump($board->getCellType(3,3));
+        $this->assertEquals($board->getCellType(3,3)['color'],Board::RED);
+        $this->assertEquals($board->getCellType(4,3)['color'],Board::BLACK);
+        $this->assertEquals($board->getCellType(5,3)['color'],Board::RED);
 
     }
 
@@ -25,14 +26,14 @@ class GameServiceTest extends TestCase
         // GIVEN
         $gameService = new GameService();
         $board = $gameService->newGame();
-        $this->assertEquals($board->getCellType(3,3),Board::BLACK);
+        $this->assertEquals($board->getCellType(3,3)['color'],Board::BLACK);
         // WHEN
         $board = $gameService->tilt($board,Board::WEST);
 
         // THEN
-        $this->assertEquals($board->getCellType(1,3),Board::RED);
-        $this->assertEquals($board->getCellType(2,3),Board::BLACK);
-        $this->assertEquals($board->getCellType(3,3),Board::RED);
+        $this->assertEquals($board->getCellType(1,3)['color'],Board::RED);
+        $this->assertEquals($board->getCellType(2,3)['color'],Board::BLACK);
+        $this->assertEquals($board->getCellType(3,3)['color'],Board::RED);
 
     }
 }
