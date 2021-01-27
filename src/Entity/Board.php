@@ -8,6 +8,7 @@ use GraphDS\Vertex\DirectedVertex;
 
 class Board
 {
+    const COLOR_KEY='color';
     const WEST = "west";
     const EAST = "east";
     const NORTH = "north";
@@ -56,7 +57,7 @@ class Board
     {
         $vertex = is_array($coordinate) ? $this->coordinateToString($coordinate) : $coordinate;
         if (!empty($this->graph->vertices[$vertex])) {
-            $this->graph->vertices[$vertex]->setValue(['color' => $color, 'flipped' => $flipped]);
+            $this->graph->vertices[$vertex]->setValue([Board::COLOR_KEY => $color, 'flipped' => $flipped]);
         }
     }
     public function getHeight()
@@ -99,7 +100,7 @@ class Board
     public function getPucksIdsByColor($color)
     {
         $pucks = array_filter($this->graph->vertices, function ($vertex) use ($color) {
-            return $vertex->getValue() && $vertex->getValue()['color'] == $color;
+            return $vertex->getValue() && $vertex->getValue()[Board::COLOR_KEY] == $color;
         });
         $graph = $this->graph;
         return array_map(function ($puck) use ($graph) {
@@ -172,7 +173,7 @@ class Board
         }
         $nextFreeCell = $this->nextFreeCell($puck, $direction);
         $puckValue = $this->removePuck($puck);
-        $this->addPuck(array_search($nextFreeCell, $this->graph->vertices), $puckValue['color']);
+        $this->addPuck(array_search($nextFreeCell, $this->graph->vertices), $puckValue[Board::COLOR_KEY]);
     }
 
     public function tilt($direction)
