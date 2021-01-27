@@ -63,7 +63,6 @@ class GameController extends AbstractController
         $this->gameService->tilt($board, $action);
         $this->session->set($playerHash, $board);
 
-
         return $this->redirectToRoute('game');
     }
 

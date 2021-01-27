@@ -97,9 +97,13 @@
 </style>
 
 <form id="cellactions" method="POST" action="/game" class="game">
+    {% if not board.shouldReplacePucks() %}
     <button name="action" type="submit" value="north" class="tilt">Tilt</button>
+    {% endif %}
     <div class="board">
+        {% if not board.shouldReplacePucks() %}
         <button name="action" type="submit" value="west" class="tilt">Tilt</button>
+        {% endif %}
         <div class="row">
           <div class="cell"><div id="cell00"></div></div>
           <div class="cell"><div id="cell01"></div></div>
@@ -163,11 +167,16 @@
           <div class="cell"><div id="cell65"></div></div>
           <div class="cell"><div id="cell66"></div></div>
         </div>
+        {% if not board.shouldReplacePucks() %}
         <button name="action" type="submit" value="east" class="tilt">Tilt</button>
+        {% endif %}
     </div>
+    {% if not board.shouldReplacePucks() %}
     <button name="action" type="submit" value="south" class="tilt">Tilt</button>
+    {% endif %}
     <div style="color:{{board.getCurrentPlayer()|lower}}">
         It's {{board.getCurrentPlayer()}} player turn
+        Should replace {{board.shouldReplacePucks()}}
     </div>
 </form>
 

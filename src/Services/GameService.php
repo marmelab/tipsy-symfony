@@ -23,7 +23,7 @@ class GameService
     );
     private $black_puck = array(3, 3);
     private $exits = array(array(1, -1), array(7, 1), array(-1, 5), array(5, 7));
-    private $players = array('Blue','Red');
+    private $players = array('Blue', 'Red');
 
     public function newGame(): Board
     {
@@ -36,8 +36,9 @@ class GameService
         return $board;
     }
 
-    private function initPlayers(Board $board){
-        $firstPlayer=$this->players[rand(0,1)];
+    private function initPlayers(Board $board)
+    {
+        $firstPlayer = $this->players[rand(0, 1)];
         $board->setPlayers($this->players);
         $board->setCurrentPlayer($firstPlayer);
         $board->setRemainingTurns(2);

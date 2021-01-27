@@ -28,7 +28,7 @@ class Board
 
     public $graph;
 
-    private $fallenPucks = [Board::BLUE=>0,Board::RED=>0];
+    private $fallenPucks = [Board::BLUE => 0, Board::RED => 0];
 
     public function __construct(int $width, int $height)
     {
@@ -186,8 +186,8 @@ class Board
     private function nextFreeCell(DirectedVertex $puck, string $direction): ?DirectedVertex
     {
         $neighbors = $puck->getOutNeighbors();
-        $nextFreeCell = null;
         $puckId = array_search($puck, $this->graph->vertices);
+        $nextFreeCell = null;
         foreach ($neighbors as $neighbor) {
             if (
                 $this->graph->edge($puckId, $neighbor)
@@ -245,10 +245,24 @@ class Board
 
         if ($nextFreeCell->getValue() && $nextFreeCell->getValue()[Board::EXIT]) {
             $this->fallenPucks[$puckValue[Board::COLOR_KEY]]++;
+            return;
         }
 
         $this->addPuck(array_search($nextFreeCell, $this->graph->vertices), $puckValue[Board::COLOR_KEY], $puckValue[Board::FLIPPED_KEY]);
     }
+
+    public function shouldReplacePucks(): bool
+    {
+        return $this->getFallenPucksCount() > 0 && $this->remainingTurns == 0;
+    }
+
+    private function getFallenPucksCount(): int
+    {
+        $blueFallenPuck = $this->getFallenPucks(Board::BLUE);
+        $redFallenPuck = $this->getFallenPucks(Board::RED);
+        return $redFallenPuck + $blueFallenPuck;
+    }
+
     public function setPlayers(array $players)
     {
         foreach ($players as $player) {
@@ -279,7 +293,9 @@ class Board
         $this->updateRemainingTurns();
         if ($this->remainingTurns == 0) {
             $this->remainingTurns = 2;
-            $this->switchPlayers();
+            if ($this->getFallenPucksCount() == 0) {
+                $this->switchPlayers();
+            }
         }
     }
 }
