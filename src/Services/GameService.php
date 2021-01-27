@@ -3,6 +3,8 @@
 namespace App\Services;
 
 use App\Entity\Board;
+use App\Repository\BoardRepository;
+use Doctrine\ORM\EntityManagerInterface;
 
 class GameService
 {
@@ -30,7 +32,7 @@ class GameService
         return $board;
     }
 
-    private function initPucks($board)
+    private function initPucks(Board $board)
     {
         foreach ($this->red_pucks as $red_puck) {
             $board->addPuck($red_puck, Board::RED);
@@ -41,12 +43,12 @@ class GameService
         $board->addPuck($this->black_puck, Board::BLACK);
     }
 
-    private function initEmptyBoard($board)
+    private function initEmptyBoard(Board $board)
     {
         foreach (range(0, $board->getWidth() - 1) as $x) {
             foreach (range(0, $board->getHeight() - 1) as $y) {
                 if ($x > 0) {
-                    $board->addEdge(array($x - 1, $y), array($x, $y), Board::WEST);
+                    $board->addEdge(array($x, $y), array($x - 1, $y), Board::WEST);
                 }
                 if ($x < $board->getWidth() - 1) {
                     $board->addEdge(array($x, $y), array($x + 1, $y), Board::EAST);
@@ -61,10 +63,15 @@ class GameService
         }
     }
 
-    private function initObstacles($board)
+    private function initObstacles(Board $board)
     {
         foreach ($this->obstacles as $obstacle) {
             $board->addObstacle($obstacle);
         }
+    }
+
+    public function tilt(Board $board, String $direction)
+    {
+        return $board->tilt($direction);
     }
 }

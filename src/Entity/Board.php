@@ -3,6 +3,8 @@
 namespace App\Entity;
 
 use GraphDS\Graph\DirectedGraph;
+use Doctrine\ORM\Mapping as ORM;
+use GraphDS\Vertex\DirectedVertex;
 
 class Board
 {
@@ -15,17 +17,13 @@ class Board
     const BLUE = "blue";
     const BLACK = "black";
 
-    /** @Column(type="integer") */
     private $id;
 
-    /** @Column(type="integer") */
     private $width = 7;
 
-    /** @Column(type="integer") */
     private $height = 7;
 
-
-    private $graph;
+    public $graph;
 
 
     public function __construct(Int $width, Int $height)
@@ -56,7 +54,7 @@ class Board
 
     public function addPuck($coordinate, $color)
     {
-        $vertex = $this->coordinateToString($coordinate);
+        $vertex = is_array($coordinate) ? $this->coordinateToString($coordinate) : $coordinate;
         if (!empty($this->graph->vertices[$vertex])) {
             $this->graph->vertices[$vertex]->setValue($color);
         }
@@ -71,6 +69,10 @@ class Board
         return $this->width;
     }
 
+    public function getId()
+    {
+        return $this->id;
+    }
     public function getCellType($x, $y)
     {
         $coordinate = array($x, $y);
@@ -87,15 +89,99 @@ class Board
             return $this->graph->vertices[$this->coordinateToString($coordinate)]->getValue();
         }
     }
+
+    public function getPucks()
+    {
+        return array_filter($this->graph->vertices, function ($vertex) {
+            return $vertex->getValue();
+        });
+    }
+    public function getPucksIdsByColor($color)
+    {
+        $pucks = array_filter($this->graph->vertices, function ($vertex) use ($color) {
+            return $vertex->getValue() && $vertex->getValue() == $color;
+        });
+        $graph = $this->graph;
+        return array_map(function ($puck) use ($graph) {
+            return array_search($puck, $graph->vertices);
+        }, $pucks);
+    }
+
     private function coordinateToString($coordinate)
     {
         list($x, $y) = $coordinate;
-        return $x . ' ' . $y;
+        return $x . $y;
     }
 
-    private function stringToCoordinate($coordinate)
+    private function getNeighbor($puck, $direction)
     {
-        list($x, $y) = explode(' ', $coordinate);
-        return array($x, $y);
+        $neighbors = $puck->getOutNeighbors();
+        $puckId = array_search($puck, $this->graph->vertices);
+        foreach ($neighbors as $neighbor) {
+            $edge = $this->graph->edge($puckId, $neighbor);
+            if (
+                $edge
+                && $edge->getValue() == $direction
+            ) {
+                return $this->graph->vertices[$neighbor];
+            }
+        }
+    }
+
+    private function isCellAPuck($vertex)
+    {
+        return $vertex && $vertex->getValue();
+    }
+
+    private function nextFreeCell($puck, $direction)
+    {
+        $neighbors = $puck->getOutNeighbors();
+        $nextFreeCell = null;
+        $puckId = array_search($puck, $this->graph->vertices);
+        foreach ($neighbors as $neighbor) {
+            if (
+                $this->graph->edge($puckId, $neighbor)
+                && $this->graph->edge($puckId, $neighbor)->getValue() == $direction
+                && !$this->graph->vertices[$neighbor]->getValue()
+            ) {
+                $nextFreeCell = $this->graph->vertices[$neighbor];
+            }
+        }
+        if ($nextFreeCell) {
+            return $this->nextFreeCell($nextFreeCell, $direction);
+        }
+        return $puck;
+    }
+
+    private function removePuck($puck)
+    {
+        $color = $puck->getValue();
+        $puckId = array_search($puck, $this->graph->vertices);
+        if (!empty($this->graph->vertices[$puckId])) {
+            $this->graph->vertices[$puckId]->setValue();
+        }
+        return [$color];
+    }
+
+    public function movePuckTo($puck, $direction)
+    {
+        $neighbor = $this->getNeighbor($puck, $direction);
+        $isNeighborAPuck = $this->isCellAPuck($neighbor);
+        if ($isNeighborAPuck) {
+            $this->movePuckTo($neighbor, $direction);
+        }
+        $nextFreeCell = $this->nextFreeCell($puck, $direction);
+        list($color) = $this->removePuck($puck);
+        $this->addPuck(array_search($nextFreeCell, $this->graph->vertices), $color);
+    }
+
+    public function tilt($direction)
+    {
+        foreach ($this->getPucks() as $puck) {
+            if (!empty($puck) && array_search($puck, $this->graph->vertices)) {
+                $this->movePuckTo($puck, $direction);
+            }
+        }
+        return $this;
     }
 }

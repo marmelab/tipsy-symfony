@@ -1,3 +1,12 @@
 index:
    path: /
    controller: App\Controller\GameController::new
+game:
+   path: /game
+   methods: GET
+   controller: App\Controller\GameController::show
+
+tilt:
+   path: /game
+   methods: POST
+   controller: App\Controller\GameController::tilt
