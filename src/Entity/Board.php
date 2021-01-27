@@ -188,6 +188,21 @@ class Board
         return $value;
     }
 
+    private function getFreeCells()
+    {
+        return array_values(array_filter($this->graph->vertices, function ($vertex) {
+            return empty($vertex->getValue());
+        }));
+    }
+
+    private function replacePuck($puck)
+    {
+        $freeCells = $this->getFreeCells();
+        $index = rand(0, count($freeCells) - 1);
+        $randomFreeCell = $freeCells[$index];
+        $this->addPuck(array_search($randomFreeCell, $this->graph->vertices), $puck[Board::COLOR_KEY], True);
+    }
+
     public function movePuckTo($puck, $direction)
     {
         $neighbor = $this->getNeighbor($puck, $direction);
@@ -199,7 +214,7 @@ class Board
         $puckValue = $this->removePuck($puck);
 
         if ($nextFreeCell->getValue() && $nextFreeCell->getValue()[Board::EXIT]) {
-
+            $this->replacePuck($puckValue);
             return $puckValue;
         }
         $this->addPuck(array_search($nextFreeCell, $this->graph->vertices), $puckValue[Board::COLOR_KEY]);
