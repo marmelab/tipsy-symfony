@@ -84,7 +84,7 @@
     }
 
     {% endfor %}
-    {% for black_puck in board.getPucksIdsBy('black') %}
+    {% for black_puck in board.getPucksIdsBy('black', false) %}
 
     #cell{{black_puck}}{
         width: 40px;
