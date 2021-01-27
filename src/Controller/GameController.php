@@ -4,10 +4,12 @@ namespace App\Controller;
 
 use App\Entity\Board;
 use App\Services\GameService;
+use Psr\Log\LoggerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Cookie;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Session\SessionInterface;
+use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 
 class GameController extends AbstractController
 {
@@ -15,7 +17,7 @@ class GameController extends AbstractController
     private $gameService;
     private $session;
 
-    public function __construct(GameService $gameService, SessionInterface $session)
+    public function __construct(GameService $gameService, SessionInterface $session, LoggerInterface $logger)
     {
         $this->gameService = $gameService;
         $this->session = $session;
@@ -24,10 +26,10 @@ class GameController extends AbstractController
     public function new()
     {
         $game = $this->gameService->newGame();
-        $player = $this->generatePlayerHash();
+        $playerHash = $this->generatePlayerHash();
         $response = $this->redirectToRoute('game');
-        $response->headers->setCookie(new Cookie($this::COOKIE_KEY, $player));
-        $this->session->set($player, $game);
+        $response->headers->setCookie(new Cookie($this::COOKIE_KEY, $playerHash));
+        $this->session->set($playerHash, $game);
 
         return $response;
     }
@@ -47,12 +49,14 @@ class GameController extends AbstractController
         $board = $this->session->get($playerHash);
 
         $action = $request->get('action');
-
+        if (!in_array($action, [Board::NORTH, Board::SOUTH, Board::EAST, Board::WEST])) {
+            throw new BadRequestHttpException("Wrong action parameter");
+        }
         $board = $this->gameService->tilt($board, $action);
         $this->session->set($playerHash, $board);
 
-        return $this->redirectToRoute('game');
 
+        return $this->redirectToRoute('game');
     }
 
     protected function generatePlayerHash()

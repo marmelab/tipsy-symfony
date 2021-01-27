@@ -48,7 +48,7 @@ class GameService
         foreach (range(0, $board->getWidth() - 1) as $x) {
             foreach (range(0, $board->getHeight() - 1) as $y) {
                 if ($x > 0) {
-                    $board->addEdge(array($x - 1, $y), array($x, $y), Board::WEST);
+                    $board->addEdge(array($x, $y), array($x - 1, $y), Board::WEST);
                 }
                 if ($x < $board->getWidth() - 1) {
                     $board->addEdge(array($x, $y), array($x + 1, $y), Board::EAST);
@@ -70,9 +70,8 @@ class GameService
         }
     }
 
-    public function tilt(Board $board, String $direction){
+    public function tilt(Board $board, String $direction)
+    {
         return $board->tilt($direction);
     }
-
-
 }

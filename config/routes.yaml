@@ -3,6 +3,7 @@ index:
    controller: App\Controller\GameController::new
 game:
    path: /game
+   methods: GET
    controller: App\Controller\GameController::show
 
 game_action:
