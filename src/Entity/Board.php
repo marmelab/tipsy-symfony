@@ -9,6 +9,7 @@ use GraphDS\Vertex\DirectedVertex;
 class Board
 {
     const COLOR_KEY = "color";
+    const FLIPPED_KEY = "flipped";
     const WEST = "west";
     const EAST = "east";
     const NORTH = "north";
@@ -78,7 +79,7 @@ class Board
     {
         $vertex = is_array($coordinate) ? $this->coordinateToString($coordinate) : $coordinate;
         if (!empty($this->graph->vertices[$vertex])) {
-            $this->graph->vertices[$vertex]->setValue([Board::COLOR_KEY => $color, 'flipped' => $flipped]);
+            $this->graph->vertices[$vertex]->setValue([Board::COLOR_KEY => $color, Board::FLIPPED_KEY => $flipped]);
         }
     }
     public function getHeight()
@@ -119,12 +120,14 @@ class Board
             return $vertex->getValue() && array_key_exists(Board::COLOR_KEY, $vertex->getValue());
         });
     }
-    public function getPucksIdsByColor($color)
+    public function getPucksIdsBy($color, $flipped = False)
     {
-        $pucks = array_filter($this->graph->vertices, function ($vertex) use ($color) {
+        $pucks = array_filter($this->graph->vertices, function ($vertex) use ($color, $flipped) {
             return $vertex->getValue()
                 && array_key_exists(Board::COLOR_KEY, $vertex->getValue())
-                && $vertex->getValue()[Board::COLOR_KEY] == $color;
+                && $vertex->getValue()[Board::COLOR_KEY] == $color
+                && array_key_exists(Board::FLIPPED_KEY, $vertex->getValue())
+                && $vertex->getValue()[Board::FLIPPED_KEY] == $flipped;
         });
         $graph = $this->graph;
         return array_map(function ($puck) use ($graph) {
@@ -217,7 +220,7 @@ class Board
             $this->replacePuck($puckValue);
             return $puckValue;
         }
-        $this->addPuck(array_search($nextFreeCell, $this->graph->vertices), $puckValue[Board::COLOR_KEY]);
+        $this->addPuck(array_search($nextFreeCell, $this->graph->vertices), $puckValue[Board::COLOR_KEY], $puckValue[Board::FLIPPED_KEY]);
         return null;
     }
 
