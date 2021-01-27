@@ -166,6 +166,9 @@
         <button name="action" type="submit" value="east" class="tilt">Tilt</button>
     </div>
     <button name="action" type="submit" value="south" class="tilt">Tilt</button>
+    <div style="color:{{board.getCurrentPlayer()|lower}}">
+        It's {{board.getCurrentPlayer()}} player turn
+    </div>
 </form>
 
 {% endblock %}

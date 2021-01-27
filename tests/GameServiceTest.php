@@ -70,4 +70,15 @@ class GameServiceTest extends TestCase
         $this->assertEquals(1, count($flippedBluePucks));
         $this->assertEquals(5, count($unflippedBluePucks));
     }
+
+    public function test_it_should_randomly_set_current_user_when_starting_a_new_game()
+    {
+        // GIVEN
+        $gameService = new GameService();
+        $board = $gameService->newGame();
+
+        // THEN
+        $this->assertNotNull($board->getCurrentPlayer());
+        $this->assertContains($board->getCurrentPlayer(),['Blue','Red']);
+    }
 }

@@ -96,6 +96,15 @@ class Board
     {
         return $this->id;
     }
+    public function setCurrentPlayer(string $player)
+    {
+        $this->currentPlayer = $player;
+    }
+    public function getCurrentPlayer(): string
+    {
+        return $this->currentPlayer;
+    }
+
     public function getCellType($x, $y): mixed
     {
         $coordinate = array($x, $y);
