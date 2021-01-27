@@ -6,7 +6,7 @@ game:
    methods: GET
    controller: App\Controller\GameController::show
 
-game_action:
+tilt:
    path: /game
    methods: POST
    controller: App\Controller\GameController::tilt
