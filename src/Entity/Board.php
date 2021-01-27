@@ -8,7 +8,7 @@ use GraphDS\Vertex\DirectedVertex;
 
 class Board
 {
-    const COLOR_KEY = 'color';
+    const COLOR_KEY = "color";
     const WEST = "west";
     const EAST = "east";
     const NORTH = "north";
@@ -17,6 +17,7 @@ class Board
     const RED = "red";
     const BLUE = "blue";
     const BLACK = "black";
+    const EXIT = "exit";
 
     private $id;
 
@@ -44,6 +45,26 @@ class Board
             $this->coordinateToString($to),
             $direction
         );
+    }
+
+    public function addExit($exit)
+    {
+        list($x, $y) = $exit;
+        $this->graph->addVertex($this->coordinateToString($exit));
+        $this->graph->vertices[$this->coordinateToString($exit)]->setValue([Board::EXIT => True]);
+
+        if ($x == -1) {
+            $this->addEdge(array(0, $y), $exit, Board::WEST);
+        }
+        if ($x == $this->width) {
+            $this->addEdge(array($x - 1, $y), $exit, Board::EAST);
+        }
+        if ($y == $this->height) {
+            $this->addEdge(array($x, $y - 1), $exit, Board::SOUTH);
+        }
+        if ($y == -1) {
+            $this->addEdge(array($x, 0), $exit, Board::NORTH);
+        }
     }
 
     public function addObstacle($coordinate)
@@ -94,13 +115,16 @@ class Board
     public function getPucks()
     {
         return array_filter($this->graph->vertices, function ($vertex) {
-            return $vertex->getValue();
+
+            return $vertex->getValue() && array_key_exists(Board::COLOR_KEY, $vertex->getValue());
         });
     }
     public function getPucksIdsByColor($color)
     {
         $pucks = array_filter($this->graph->vertices, function ($vertex) use ($color) {
-            return $vertex->getValue() && $vertex->getValue()[Board::COLOR_KEY] == $color;
+            return $vertex->getValue()
+                && array_key_exists(Board::COLOR_KEY, $vertex->getValue())
+                && $vertex->getValue()[Board::COLOR_KEY] == $color;
         });
         $graph = $this->graph;
         return array_map(function ($puck) use ($graph) {
@@ -131,7 +155,7 @@ class Board
 
     private function isCellAPuck($vertex)
     {
-        return $vertex && $vertex->getValue();
+        return $vertex && $vertex->getValue() && array_key_exists(Board::COLOR_KEY, $vertex->getValue());
     }
 
     private function nextFreeCell($puck, $direction)
@@ -143,7 +167,7 @@ class Board
             if (
                 $this->graph->edge($puckId, $neighbor)
                 && $this->graph->edge($puckId, $neighbor)->getValue() == $direction
-                && !$this->graph->vertices[$neighbor]->getValue()
+                && !$this->isCellAPuck($this->graph->vertices[$neighbor])
             ) {
                 $nextFreeCell = $this->graph->vertices[$neighbor];
             }
@@ -173,6 +197,11 @@ class Board
         }
         $nextFreeCell = $this->nextFreeCell($puck, $direction);
         $puckValue = $this->removePuck($puck);
+
+        if ($nextFreeCell->getValue() && $nextFreeCell->getValue()[Board::EXIT]) {
+
+            return $puckValue;
+        }
         $this->addPuck(array_search($nextFreeCell, $this->graph->vertices), $puckValue[Board::COLOR_KEY]);
     }
 
