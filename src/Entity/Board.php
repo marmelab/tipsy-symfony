@@ -28,6 +28,7 @@ class Board
 
     public $graph;
 
+    private $fallenPucks = array();
 
     public function __construct(int $width, int $height)
     {
@@ -212,6 +213,10 @@ class Board
         return $value;
     }
 
+    public function getFallenPucks(): array
+    {
+        return $this->fallenPucks;
+    }
     private function getFreeCells(): array
     {
         return array_values(array_filter($this->graph->vertices, function ($vertex) {
@@ -227,7 +232,7 @@ class Board
         $this->addPuck(array_search($randomFreeCell, $this->graph->vertices), $puck[Board::COLOR_KEY], True);
     }
 
-    public function movePuckTo(DirectedVertex $puck, string $direction): ?array
+    public function movePuckTo(DirectedVertex $puck, string $direction)
     {
         $neighbor = $this->getNeighbor($puck, $direction);
         $isNeighborAPuck = $this->isCellAPuck($neighbor);
@@ -238,11 +243,9 @@ class Board
         $puckValue = $this->removePuck($puck);
 
         if ($nextFreeCell->getValue() && $nextFreeCell->getValue()[Board::EXIT]) {
-            $this->replacePuck($puckValue);
-            return $puckValue;
+            array_push($this->fallenPucks, $puckValue);
         }
         $this->addPuck(array_search($nextFreeCell, $this->graph->vertices), $puckValue[Board::COLOR_KEY], $puckValue[Board::FLIPPED_KEY]);
-        return null;
     }
     public function setPlayers(array $players)
     {
