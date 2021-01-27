@@ -62,10 +62,12 @@ class GameServiceTest extends TestCase
         $board = $gameService->tilt($board, Board::EAST);
         $board = $gameService->tilt($board, Board::NORTH);
         $board = $gameService->tilt($board, Board::EAST);
-        $board = $gameService->tilt($board, Board::NORTH);
-        $board = $gameService->tilt($board, Board::EAST);
 
         // THEN
         $this->assertNull($board->getCellType(6, 1));
+        $flippedBluePucks = $board->getPucksIdsBy(Board::BLUE,true);
+        $unflippedBluePucks = $board->getPucksIdsBy(Board::BLUE,false);
+        $this->assertEquals(1, count($flippedBluePucks));
+        $this->assertEquals(5, count($unflippedBluePucks));
     }
 }

@@ -8,7 +8,7 @@
     .cell{
         width: 40px;
         height: 40px;
-        border : 1px solid black
+        border : 2px solid black
     }
     .obstacle{
         background-color: black
@@ -25,16 +25,16 @@
         flex-direction: column;
     }
     .top-exit {
-        border-top: none;
+        border-top: 2px solid lightgrey;
     }
     .right-exit {
-        border-right: none;
+        border-right: 2px solid lightgrey;
     }
     .left-exit {
-        border-left: none;
+        border-left: 2px solid lightgrey;
     }
     .bottom-exit {
-        border-bottom: none;
+        border-bottom: 2px solid lightgrey;
     }
     .tilt {
         border: none;
@@ -43,7 +43,7 @@
         flex: 1;
     }
 
-    {% for red_puck in board.getPucksIdsByColor('red') %}
+    {% for red_puck in board.getPucksIdsBy('red', false) %}
 
     #cell{{red_puck}}{
         width: 40px;
@@ -53,8 +53,17 @@
     }
 
     {% endfor %}
+    {% for flipped_red_puck in board.getPucksIdsBy('red', true) %}
 
-    {% for blue_puck in board.getPucksIdsByColor('blue') %}
+    #cell{{flipped_red_puck}}{
+        width: 40px;
+        height: 40px;
+        border-radius: 20px;
+        background-color: darkred;
+    }
+
+    {% endfor %}
+    {% for blue_puck in board.getPucksIdsBy('blue', false) %}
 
     #cell{{blue_puck}}{
         width: 40px;
@@ -65,7 +74,17 @@
 
     {% endfor %}
 
-    {% for black_puck in board.getPucksIdsByColor('black') %}
+    {% for flipped_blue_puck in board.getPucksIdsBy('blue', true) %}
+
+    #cell{{flipped_blue_puck}}{
+        width: 40px;
+        height: 40px;
+        border-radius: 20px;
+        background-color: darkblue;
+    }
+
+    {% endfor %}
+    {% for black_puck in board.getPucksIdsBy('black') %}
 
     #cell{{black_puck}}{
         width: 40px;
