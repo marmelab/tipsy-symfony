@@ -155,10 +155,7 @@ class Board
 
     public function movePuckTo($puck, $direction)
     {
-        // neighbor = self.__get_node_by_direction(node, direction)
         $neighbor = $this->getNeighbor($puck, $direction);
-        // is_neighbor_a_puck = neighbor and self.graph.has_node(neighbor) \
-        //     and self.graph.nodes[neighbor].get(Board.PUCK_KEY)
         $isNeighborAPuck = $this->isCellAPuck($neighbor);
         if ($isNeighborAPuck) {
             $this->movePuckTo($neighbor, $direction);

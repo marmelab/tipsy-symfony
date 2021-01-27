@@ -9,4 +9,4 @@ game:
 game_action:
    path: /game
    methods: POST
-   controller: App\Controller\GameController::action
+   controller: App\Controller\GameController::tilt

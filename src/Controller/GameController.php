@@ -43,7 +43,7 @@ class GameController extends AbstractController
         ]);
     }
 
-    public function action(Request $request)
+    public function tilt(Request $request)
     {
         $playerHash = $request->cookies->get($this::COOKIE_KEY);
         $board = $this->session->get($playerHash);
