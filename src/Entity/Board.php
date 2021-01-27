@@ -29,7 +29,7 @@ class Board
     public $graph;
 
 
-    public function __construct(Int $width, Int $height)
+    public function __construct(int $width, int $height)
     {
         $this->width = $width;
         $this->height = $height;
@@ -37,7 +37,7 @@ class Board
     }
 
 
-    public function addEdge($from, $to, $direction)
+    public function addEdge(array $from, array $to, string $direction)
     {
         $this->graph->addVertex($this->coordinateToString($from));
         $this->graph->addVertex($this->coordinateToString($to));
@@ -48,7 +48,7 @@ class Board
         );
     }
 
-    public function addExit($exit)
+    public function addExit(array $exit)
     {
         list($x, $y) = $exit;
         $this->graph->addVertex($this->coordinateToString($exit));
@@ -68,35 +68,35 @@ class Board
         }
     }
 
-    public function addObstacle($coordinate)
+    public function addObstacle(array $coordinate)
     {
         if (!empty($this->graph->vertices[$this->coordinateToString($coordinate)])) {
             $this->graph->removeVertex($this->coordinateToString($coordinate));
         }
     }
 
-    public function addPuck($coordinate, $color, $flipped = false)
+    public function addPuck(mixed $coordinate, string $color, bool $flipped = false)
     {
         $vertex = is_array($coordinate) ? $this->coordinateToString($coordinate) : $coordinate;
         if (!empty($this->graph->vertices[$vertex])) {
             $this->graph->vertices[$vertex]->setValue([Board::COLOR_KEY => $color, Board::FLIPPED_KEY => $flipped]);
         }
     }
-    public function getHeight()
+    public function getHeight(): int
     {
         return $this->height;
     }
 
-    public function getWidth()
+    public function getWidth(): int
     {
         return $this->width;
     }
 
-    public function getId()
+    public function getId(): string
     {
         return $this->id;
     }
-    public function getCellType($x, $y)
+    public function getCellType($x, $y): mixed
     {
         $coordinate = array($x, $y);
         if (empty($this->graph->vertices[$this->coordinateToString($coordinate)])) {
@@ -105,22 +105,23 @@ class Board
         return $this->graph->vertices[$this->coordinateToString($coordinate)]->getValue();
     }
 
-    public function getPuck($x, $y)
+    public function getPuck($x, $y): ?array
     {
         $coordinate = array($x, $y);
         if (!empty($this->graph->vertices[$this->coordinateToString($coordinate)])) {
             return $this->graph->vertices[$this->coordinateToString($coordinate)]->getValue();
         }
+        return null;
     }
 
-    public function getPucks()
+    public function getPucks(): array
     {
         return array_filter($this->graph->vertices, function ($vertex) {
 
             return $vertex->getValue() && array_key_exists(Board::COLOR_KEY, $vertex->getValue());
         });
     }
-    public function getPucksIdsBy($color, $flipped = false)
+    public function getPucksIdsBy(string $color, ?bool $flipped): array
     {
         $pucks = array_filter($this->graph->vertices, function ($vertex) use ($color, $flipped) {
             return $vertex->getValue()
@@ -135,13 +136,13 @@ class Board
         }, $pucks);
     }
 
-    private function coordinateToString($coordinate)
+    private function coordinateToString(array $coordinate): string
     {
         list($x, $y) = $coordinate;
         return $x . $y;
     }
 
-    private function getNeighbor($puck, $direction)
+    private function getNeighbor(DirectedVertex $puck, string $direction): ?DirectedVertex
     {
         $neighbors = $puck->getOutNeighbors();
         $puckId = array_search($puck, $this->graph->vertices);
@@ -154,14 +155,15 @@ class Board
                 return $this->graph->vertices[$neighbor];
             }
         }
+        return null;
     }
 
-    private function isCellAPuck($vertex)
+    private function isCellAPuck(?DirectedVertex $vertex): bool
     {
         return $vertex && $vertex->getValue() && array_key_exists(Board::COLOR_KEY, $vertex->getValue());
     }
 
-    private function nextFreeCell($puck, $direction)
+    private function nextFreeCell(DirectedVertex $puck, string $direction): ?DirectedVertex
     {
         $neighbors = $puck->getOutNeighbors();
         $nextFreeCell = null;
@@ -181,7 +183,7 @@ class Board
         return $puck;
     }
 
-    private function removePuck($puck)
+    private function removePuck(DirectedVertex $puck): array
     {
         $value = $puck->getValue();
         $puckId = array_search($puck, $this->graph->vertices);
@@ -191,14 +193,14 @@ class Board
         return $value;
     }
 
-    private function getFreeCells()
+    private function getFreeCells(): array
     {
         return array_values(array_filter($this->graph->vertices, function ($vertex) {
             return empty($vertex->getValue());
         }));
     }
 
-    private function replacePuck($puck)
+    private function replacePuck(array $puck)
     {
         $freeCells = $this->getFreeCells();
         $index = rand(0, count($freeCells) - 1);
@@ -206,7 +208,7 @@ class Board
         $this->addPuck(array_search($randomFreeCell, $this->graph->vertices), $puck[Board::COLOR_KEY], True);
     }
 
-    public function movePuckTo($puck, $direction)
+    public function movePuckTo(DirectedVertex $puck, string $direction): ?array
     {
         $neighbor = $this->getNeighbor($puck, $direction);
         $isNeighborAPuck = $this->isCellAPuck($neighbor);
@@ -224,7 +226,7 @@ class Board
         return null;
     }
 
-    public function tilt($direction)
+    public function tilt(string $direction)
     {
         foreach ($this->getPucks() as $puck) {
             if (!empty($puck) && array_search($puck, $this->graph->vertices)) {
@@ -233,6 +235,5 @@ class Board
                 }
             }
         }
-        return $this;
     }
 }

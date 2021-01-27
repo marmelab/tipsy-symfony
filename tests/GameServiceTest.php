@@ -13,7 +13,7 @@ class GameServiceTest extends TestCase
         $board = $gameService->newGame();
         $this->assertEquals($board->getCellType(3, 3)[Board::COLOR_KEY], Board::BLACK);
         // WHEN
-        $board = $gameService->tilt($board, Board::EAST);
+        $gameService->tilt($board, Board::EAST);
 
         // THEN
         $this->assertEquals($board->getCellType(3, 3)[Board::COLOR_KEY], Board::RED);
@@ -28,7 +28,7 @@ class GameServiceTest extends TestCase
         $board = $gameService->newGame();
         $this->assertEquals($board->getCellType(3, 3)[Board::COLOR_KEY], Board::BLACK);
         // WHEN
-        $board = $gameService->tilt($board, Board::WEST);
+        $gameService->tilt($board, Board::WEST);
 
         // THEN
         $this->assertEquals($board->getCellType(1, 3)[Board::COLOR_KEY], Board::RED);
@@ -43,12 +43,12 @@ class GameServiceTest extends TestCase
         $board = $gameService->newGame();
         $this->assertEquals($board->getCellType(3, 3)[Board::COLOR_KEY], Board::BLACK);
         // WHEN
-        $board = $gameService->tilt($board, Board::NORTH);
-        $board = $gameService->tilt($board, Board::WEST);
-        $board = $gameService->tilt($board, Board::NORTH);
-        $board = $gameService->tilt($board, Board::WEST);
-        $board = $gameService->tilt($board, Board::NORTH);
-        $board = $gameService->tilt($board, Board::SOUTH);
+        $gameService->tilt($board, Board::NORTH);
+        $gameService->tilt($board, Board::WEST);
+        $gameService->tilt($board, Board::NORTH);
+        $gameService->tilt($board, Board::WEST);
+        $gameService->tilt($board, Board::NORTH);
+        $gameService->tilt($board, Board::SOUTH);
     }
 
     public function test_tilt_north_east_north_east_north_east_should_move_a_puck_out()
@@ -58,10 +58,10 @@ class GameServiceTest extends TestCase
         $board = $gameService->newGame();
         $this->assertEquals($board->getCellType(3, 3)[Board::COLOR_KEY], Board::BLACK);
         // WHEN
-        $board = $gameService->tilt($board, Board::NORTH);
-        $board = $gameService->tilt($board, Board::EAST);
-        $board = $gameService->tilt($board, Board::NORTH);
-        $board = $gameService->tilt($board, Board::EAST);
+        $gameService->tilt($board, Board::NORTH);
+        $gameService->tilt($board, Board::EAST);
+        $gameService->tilt($board, Board::NORTH);
+        $gameService->tilt($board, Board::EAST);
 
         // THEN
         $this->assertNull($board->getCellType(6, 1));

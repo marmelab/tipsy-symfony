@@ -60,7 +60,7 @@ class GameController extends AbstractController
         if (!in_array($action, [Board::NORTH, Board::SOUTH, Board::EAST, Board::WEST])) {
             throw new BadRequestHttpException("Wrong action parameter");
         }
-        $board = $this->gameService->tilt($board, $action);
+        $this->gameService->tilt($board, $action);
         $this->session->set($playerHash, $board);
 
 

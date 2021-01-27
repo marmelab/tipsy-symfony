@@ -24,7 +24,7 @@ class GameService
     private $black_puck = array(3, 3);
     private $exits = array(array(1, -1), array(7, 1), array(-1, 5), array(5, 7));
 
-    public function newGame()
+    public function newGame(): Board
     {
         $board = new Board(7, 7);
         $this->initEmptyBoard($board);
@@ -34,7 +34,7 @@ class GameService
         return $board;
     }
 
-    private function initExits($board)
+    private function initExits(Board $board)
     {
         foreach ($this->exits as $exit) {
             $board->addExit($exit);
@@ -81,6 +81,6 @@ class GameService
 
     public function tilt(Board $board, String $direction)
     {
-        return $board->tilt($direction);
+        $board->tilt($direction);
     }
 }
