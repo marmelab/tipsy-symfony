@@ -35,4 +35,19 @@ class GameServiceTest extends TestCase
         $this->assertEquals($board->getCellType(3,3)[Board::COLOR_KEY],Board::RED);
 
     }
+
+    public function test_tilt_nwnwns_should_not_end_with_error(){
+        // GIVEN
+        $gameService = new GameService();
+        $board = $gameService->newGame();
+        $this->assertEquals($board->getCellType(3,3)[Board::COLOR_KEY],Board::BLACK);
+        // WHEN
+        $board = $gameService->tilt($board,Board::NORTH);
+        $board = $gameService->tilt($board,Board::WEST);
+        $board = $gameService->tilt($board,Board::NORTH);
+        $board = $gameService->tilt($board,Board::WEST);
+        $board = $gameService->tilt($board,Board::NORTH);
+        $board = $gameService->tilt($board,Board::SOUTH);
+
+    }
 }

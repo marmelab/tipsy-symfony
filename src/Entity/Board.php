@@ -8,7 +8,7 @@ use GraphDS\Vertex\DirectedVertex;
 
 class Board
 {
-    const COLOR_KEY='color';
+    const COLOR_KEY = 'color';
     const WEST = "west";
     const EAST = "east";
     const NORTH = "north";
@@ -180,7 +180,9 @@ class Board
     {
         foreach ($this->getPucks() as $puck) {
             if (!empty($puck) && array_search($puck, $this->graph->vertices)) {
-                $this->movePuckTo($puck, $direction);
+                if ($puck->getValue()) {
+                    $this->movePuckTo($puck, $direction);
+                }
             }
         }
         return $this;
