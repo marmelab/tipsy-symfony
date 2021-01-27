@@ -37,10 +37,11 @@ class GameController extends AbstractController
     public function show(Request $request)
     {
         $playerHash = $request->cookies->get($this::COOKIE_KEY);
-        if(!$playerHash){
+        if (!$playerHash || !$this->session->get($playerHash)) {
             return $this->redirectToRoute('index');
         }
         $board = $this->session->get($playerHash);
+
         return $this->render('game/game.html.twig', [
             'board' => $board
         ]);
@@ -49,7 +50,7 @@ class GameController extends AbstractController
     public function tilt(Request $request)
     {
         $playerHash = $request->cookies->get($this::COOKIE_KEY);
-        if(!$playerHash){
+        if (!$playerHash || !$this->session->get($playerHash)) {
             return $this->redirectToRoute('index');
         }
 

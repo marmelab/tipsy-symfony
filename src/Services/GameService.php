@@ -22,6 +22,7 @@ class GameService
         array(4, 1), array(4, 3), array(4, 5)
     );
     private $black_puck = array(3, 3);
+    private $exits = array(array(1, -1), array(7, 1), array(-1, 5), array(5, 7));
 
     public function newGame()
     {
@@ -29,7 +30,15 @@ class GameService
         $this->initEmptyBoard($board);
         $this->initObstacles($board);
         $this->initPucks($board);
+        $this->initExits($board);
         return $board;
+    }
+
+    private function initExits($board)
+    {
+        foreach ($this->exits as $exit) {
+            $board->addExit($exit);
+        }
     }
 
     private function initPucks(Board $board)
