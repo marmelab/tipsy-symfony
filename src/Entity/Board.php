@@ -120,7 +120,7 @@ class Board
             return $vertex->getValue() && array_key_exists(Board::COLOR_KEY, $vertex->getValue());
         });
     }
-    public function getPucksIdsBy($color, $flipped = False)
+    public function getPucksIdsBy($color, $flipped = false)
     {
         $pucks = array_filter($this->graph->vertices, function ($vertex) use ($color, $flipped) {
             return $vertex->getValue()
