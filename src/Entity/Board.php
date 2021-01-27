@@ -105,6 +105,16 @@ class Board
         return $this->currentPlayer;
     }
 
+    public function setRemainingTurns(int $turns)
+    {
+        $this->remainingTurns = $turns;
+    }
+
+    public function getRemainingTurns(): int
+    {
+        return $this->remainingTurns;
+    }
+
     public function getCellType($x, $y): mixed
     {
         $coordinate = array($x, $y);

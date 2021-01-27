@@ -40,6 +40,7 @@ class GameService
         $firstPlayer=$this->players[rand(0,1)];
 
         $board->setCurrentPlayer($firstPlayer);
+        $board->setRemainingTurns(2);
     }
     private function initExits(Board $board)
     {
