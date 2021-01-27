@@ -65,7 +65,7 @@ class GameServiceTest extends TestCase
 
         // THEN
         $this->assertNull($board->getCellType(6, 1));
-        $this->assertEquals(1, count($board->getFallenPucks()));
+        $this->assertEquals(1, $board->getFallenPucks(Board::BLUE));
     }
 
     public function test_it_should_randomly_set_current_user_when_starting_a_new_game()

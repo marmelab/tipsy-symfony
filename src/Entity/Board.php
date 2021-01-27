@@ -28,7 +28,7 @@ class Board
 
     public $graph;
 
-    private $fallenPucks = array();
+    private $fallenPucks = [Board::BLUE=>0,Board::RED=>0];
 
     public function __construct(int $width, int $height)
     {
@@ -213,10 +213,11 @@ class Board
         return $value;
     }
 
-    public function getFallenPucks(): array
+    public function getFallenPucks(string $color): int
     {
-        return $this->fallenPucks;
+        return $this->fallenPucks[$color];
     }
+
     private function getFreeCells(): array
     {
         return array_values(array_filter($this->graph->vertices, function ($vertex) {
@@ -243,8 +244,9 @@ class Board
         $puckValue = $this->removePuck($puck);
 
         if ($nextFreeCell->getValue() && $nextFreeCell->getValue()[Board::EXIT]) {
-            array_push($this->fallenPucks, $puckValue);
+            $this->fallenPucks[$puckValue[Board::COLOR_KEY]]++;
         }
+
         $this->addPuck(array_search($nextFreeCell, $this->graph->vertices), $puckValue[Board::COLOR_KEY], $puckValue[Board::FLIPPED_KEY]);
     }
     public function setPlayers(array $players)
@@ -263,21 +265,21 @@ class Board
     private function updateRemainingTurns()
     {
         $this->remainingTurns--;
-        if ($this->remainingTurns == 0) {
-            $this->remainingTurns = 2;
-            $this->switchPlayers();
-        }
     }
 
     public function tilt(string $direction)
     {
-        $this->updateRemainingTurns();
         foreach ($this->getPucks() as $puck) {
             if (!empty($puck) && array_search($puck, $this->graph->vertices)) {
                 if ($puck->getValue()) {
                     $this->movePuckTo($puck, $direction);
                 }
             }
+        }
+        $this->updateRemainingTurns();
+        if ($this->remainingTurns == 0) {
+            $this->remainingTurns = 2;
+            $this->switchPlayers();
         }
     }
 }
