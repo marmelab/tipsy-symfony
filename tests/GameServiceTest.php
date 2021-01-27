@@ -15,7 +15,6 @@ class GameServiceTest extends TestCase
         $board = $gameService->tilt($board,Board::EAST);
 
         // THEN
-        var_dump($board->getCellType(3,3));
         $this->assertEquals($board->getCellType(3,3)[Board::COLOR_KEY],Board::RED);
         $this->assertEquals($board->getCellType(4,3)[Board::COLOR_KEY],Board::BLACK);
         $this->assertEquals($board->getCellType(5,3)[Board::COLOR_KEY],Board::RED);
