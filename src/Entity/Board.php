@@ -203,6 +203,7 @@ class Board
             return $puckValue;
         }
         $this->addPuck(array_search($nextFreeCell, $this->graph->vertices), $puckValue[Board::COLOR_KEY]);
+        return null;
     }
 
     public function tilt($direction)
