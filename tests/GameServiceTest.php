@@ -6,7 +6,7 @@ use PHPUnit\Framework\TestCase;
 
 class GameServiceTest extends TestCase
 {
-    public function testTiltToRightShouldMovePuckToRightBorder()
+    public function test_tilt_to_right_should_move_puck_to_right_border()
     {
         // GIVEN
         $gameService = new GameService();
@@ -21,7 +21,7 @@ class GameServiceTest extends TestCase
         $this->assertEquals($board->getCellType(5, 3)[Board::COLOR_KEY], Board::RED);
     }
 
-    public function testTiltToRightShouldMovePuckToLeftBorder()
+    public function test_tilt_to_left_should_move_puck_to_left_border()
     {
         // GIVEN
         $gameService = new GameService();
