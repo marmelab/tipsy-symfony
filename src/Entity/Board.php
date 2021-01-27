@@ -96,11 +96,21 @@ class Board
             return $vertex->getValue();
         });
     }
+    public function getPucksIdsByColor($color)
+    {
+        $pucks = array_filter($this->graph->vertices, function ($vertex) use ($color) {
+            return $vertex->getValue() && $vertex->getValue() == $color;
+        });
+        $graph = $this->graph;
+        return array_map(function ($puck) use ($graph) {
+            return array_search($puck, $graph->vertices);
+        }, $pucks);
+    }
 
     private function coordinateToString($coordinate)
     {
         list($x, $y) = $coordinate;
-        return $x . ' ' . $y;
+        return $x . $y;
     }
 
     private function getNeighbor($puck, $direction)
