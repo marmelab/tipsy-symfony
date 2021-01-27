@@ -98,11 +98,11 @@ class Board
     }
     public function setCurrentPlayer(string $player)
     {
-        $this->currentPlayer = $player;
+        $this->players[$player] = true;
     }
     public function getCurrentPlayer(): string
     {
-        return $this->currentPlayer;
+        return array_search(true, $this->players);
     }
 
     public function setRemainingTurns(int $turns)
@@ -244,9 +244,31 @@ class Board
         $this->addPuck(array_search($nextFreeCell, $this->graph->vertices), $puckValue[Board::COLOR_KEY], $puckValue[Board::FLIPPED_KEY]);
         return null;
     }
+    public function setPlayers(array $players)
+    {
+        foreach ($players as $player) {
+            $this->players[$player] = false;
+        }
+    }
+    private function switchPlayers()
+    {
+        foreach (array_keys($this->players) as $player) {
+            $this->players[$player] = !$this->players[$player];
+        }
+    }
+
+    private function updateRemainingTurns()
+    {
+        $this->remainingTurns--;
+        if ($this->remainingTurns == 0) {
+            $this->remainingTurns = 2;
+            $this->switchPlayers();
+        }
+    }
 
     public function tilt(string $direction)
     {
+        $this->updateRemainingTurns();
         foreach ($this->getPucks() as $puck) {
             if (!empty($puck) && array_search($puck, $this->graph->vertices)) {
                 if ($puck->getValue()) {

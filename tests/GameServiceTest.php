@@ -65,8 +65,8 @@ class GameServiceTest extends TestCase
 
         // THEN
         $this->assertNull($board->getCellType(6, 1));
-        $flippedBluePucks = $board->getPucksIdsBy(Board::BLUE,true);
-        $unflippedBluePucks = $board->getPucksIdsBy(Board::BLUE,false);
+        $flippedBluePucks = $board->getPucksIdsBy(Board::BLUE, true);
+        $unflippedBluePucks = $board->getPucksIdsBy(Board::BLUE, false);
         $this->assertEquals(1, count($flippedBluePucks));
         $this->assertEquals(5, count($unflippedBluePucks));
     }
@@ -79,6 +79,49 @@ class GameServiceTest extends TestCase
 
         // THEN
         $this->assertNotNull($board->getCurrentPlayer());
-        $this->assertContains($board->getCurrentPlayer(),['Blue','Red']);
+        $this->assertContains($board->getCurrentPlayer(), ['Blue', 'Red']);
+    }
+
+
+    public function test_it_should_initialize_remaining_turns_when_starting_a_new_game()
+    {
+        // GIVEN
+        $gameService = new GameService();
+        $board = $gameService->newGame();
+
+        // THEN
+        $this->assertNotNull($board->getRemainingTurns());
+        $this->assertGreaterThan(0, $board->getRemainingTurns());
+    }
+
+    public function test_it_should_decrement_players_when_tilt_is_done()
+    {
+        // GIVEN
+        $gameService = new GameService();
+        $board = $gameService->newGame();
+        $remainingTurns = $board->getRemainingTurns();
+
+        // WHEN
+        $gameService->tilt($board, Board::SOUTH);
+
+        // THEN
+        $this->assertEquals($remainingTurns - 1, $board->getRemainingTurns());
+    }
+
+    public function test_it_should_switch_players_when_no_remaining_turns()
+    {
+        // GIVEN
+        $gameService = new GameService();
+        $board = $gameService->newGame();
+        $remainingTurns = $board->getRemainingTurns();
+        $currentPlayer = $board->getCurrentPlayer();
+
+        // WHEN
+        for($i = 0; $i < $remainingTurns; $i++){
+            $gameService->tilt($board, Board::SOUTH);
+        }
+
+        // THEN
+        $this->assertNotEquals($currentPlayer, $board->getCurrentPlayer());
     }
 }
