@@ -96,7 +96,7 @@
     {% endfor %}
 </style>
 <div class="game">
-    <form id="cellactions" method="POST" action={{(board.shouldReplacePucks())?"game/replacepuck":"/game"}}>
+    <form id="cellactions" method="POST" action={{(board.shouldReplacePucks())?"game/replacepuck":"/game/tilt"}}>
         {% if not board.shouldReplacePucks() %}
         <button name="action" type="submit" value="north" class="tilt">Tilt</button>
         {% endif %}
