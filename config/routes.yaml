@@ -7,9 +7,9 @@ game:
    controller: App\Controller\GameController::show
 
 replace:
-   path: /game/replace
+   path: /game/replacepuck
    methods: POST
-   controller: App\Controller\GameController::replace
+   controller: App\Controller\GameController::replacePuck
 
 tilt:
    path: /game

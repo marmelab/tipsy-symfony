@@ -53,7 +53,7 @@ class GameController extends AbstractController
             return $this->redirectToRoute('index');
         }
         $board = $this->session->get($playerHash);
-        // $this->gameService->replacePuck($board);
+        $this->gameService->replacePuck($board);
 
         return $this->redirectToRoute('game');
     }

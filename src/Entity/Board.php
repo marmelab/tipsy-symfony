@@ -218,6 +218,11 @@ class Board
         return $this->fallenPucks[$color];
     }
 
+    public function decrementFallenPucks(string $color)
+    {
+        $this->fallenPucks[$color]--;
+    }
+
     private function getFreeCells(): array
     {
         return array_values(array_filter($this->graph->vertices, function ($vertex) {
@@ -225,12 +230,16 @@ class Board
         }));
     }
 
-    public function replacePuck(array $puck)
+    public function replacePuck(string $color)
     {
         $freeCells = $this->getFreeCells();
         $index = rand(0, count($freeCells) - 1);
         $randomFreeCell = $freeCells[$index];
-        $this->addPuck(array_search($randomFreeCell, $this->graph->vertices), $puck[Board::COLOR_KEY], True);
+        $this->addPuck(array_search($randomFreeCell, $this->graph->vertices), $color, True);
+        if($this->getFallenPucksCount()==0){
+            $this->remainingTurns = 2;
+            $this->switchPlayers();
+        }
     }
 
     public function movePuckTo(DirectedVertex $puck, string $direction)
@@ -243,7 +252,11 @@ class Board
         $nextFreeCell = $this->nextFreeCell($puck, $direction);
         $puckValue = $this->removePuck($puck);
 
-        if ($nextFreeCell->getValue() && $nextFreeCell->getValue()[Board::EXIT]) {
+        if (
+            $nextFreeCell->getValue()
+            && $nextFreeCell->getValue()[Board::EXIT]
+            && $puckValue[Board::COLOR_KEY] != Board::BLACK
+        ) {
             $this->fallenPucks[$puckValue[Board::COLOR_KEY]]++;
             return;
         }
@@ -263,7 +276,8 @@ class Board
         return $redFallenPuck + $blueFallenPuck;
     }
 
-    public function getCurrentOpponent(): string{
+    public function getCurrentOpponent(): string
+    {
         return array_search(false, $this->players);
     }
     public function setPlayers(array $players)
@@ -278,6 +292,7 @@ class Board
             $this->players[$player] = !$this->players[$player];
         }
     }
+
 
     private function updateRemainingTurns()
     {

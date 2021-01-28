@@ -61,14 +61,21 @@ class GameService
         $board->addPuck($this->black_puck, Board::BLACK);
     }
 
-    // public function replacePuck(Board $board){
-    //     $opponent = $board->getCurrentOpponent();
-    //     $opponentPucks = $board->getFallenPucks($opponent);
-    //     if ($opponentPucks >0){
-    //         $board->replacePuck($opponentPucks);
-    //     }
-    //     $board->replacePuck();
-    // }
+    public function replacePuck(Board $board)
+    {
+        $opponent = $board->getCurrentOpponent();
+        $opponentPucks = $board->getFallenPucks($opponent);
+
+        $player = $board->getCurrentPlayer();
+        $currentPlayerPucks = $board->getFallenPucks($player);
+
+        if ($opponentPucks > 0) {
+            $player = $opponent;
+        }
+        $board->decrementFallenPucks($player);
+        $board->replacePuck($player);
+    }
+
     private function initEmptyBoard(Board $board)
     {
         foreach (range(0, $board->getWidth() - 1) as $x) {

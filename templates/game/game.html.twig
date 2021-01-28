@@ -96,7 +96,7 @@
     {% endfor %}
 </style>
 <div class="game">
-    <form id="cellactions" method="POST" action={{(board.shouldReplacePucks())?"/replace":"/game"}}>
+    <form id="cellactions" method="POST" action={{(board.shouldReplacePucks())?"game/replacepuck":"/game"}}>
         {% if not board.shouldReplacePucks() %}
         <button name="action" type="submit" value="north" class="tilt">Tilt</button>
         {% endif %}
@@ -178,8 +178,7 @@
         <button name="action" type="submit" value="replace" class="tilt">Replace</button>
         {% endif %}
         <div style="color:{{board.getCurrentPlayer()|lower}}">
-            It's {{board.getCurrentPlayer()}} player turn
-            Should replace {{board.shouldReplacePucks()}}
+            {{board.getCurrentPlayer()}} player remaing turns {{board.getRemainingTurns()}}
             <div>Blue Fallen pucks {{board.getFallenPucks('blue')}}</div>
             <div>Red Fallen pucks {{board.getFallenPucks('red')}}</div>
             <div>All Fallen pucks {{board.getFallenPucksCount()}}</div>

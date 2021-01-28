@@ -159,4 +159,26 @@ class GameServiceTest extends TestCase
         // THEN
         $this->assertFalse($board->shouldReplacePucks());
     }
+
+    public function test_we_should_switch_player_and_reset_remaining_turns_after_replacing_all_fallen_pucks()
+    {
+        // GIVEN
+        $gameService = new GameService();
+        $board = $gameService->newGame();
+        $this->assertEquals($board->getCellType(3, 3)[Board::COLOR_KEY], Board::BLACK);
+        $currentPlayer = $board->getCurrentPlayer();
+        $opponent = $board->getCurrentOpponent();
+        // WHEN
+        $gameService->tilt($board, Board::NORTH);
+        $gameService->tilt($board, Board::EAST);
+        // player switch
+        $gameService->tilt($board, Board::NORTH);
+        $gameService->tilt($board, Board::EAST);
+        $gameService->replacePuck($board);
+        // player reswitch
+
+        // THEN
+        $this->assertGreaterThan(0,$board->getRemainingTurns());
+        $this->assertEquals($currentPlayer, $board->getCurrentPlayer());
+    }
 }
