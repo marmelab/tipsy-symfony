@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "27cd5705157afc03e20a2917194ce0d8",
+    "content-hash": "50828f60ccd95055b656edb09f95a37f",
     "packages": [
         {
             "name": "algb12/graph-ds",
