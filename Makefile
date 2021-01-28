@@ -19,6 +19,7 @@ deploy:
 	ssh -i ${key} ubuntu@ec2-3-250-16-46.eu-west-1.compute.amazonaws.com \
 	'unzip -ou tipsy.zip -d tipsy && \
 	cd tipsy &&\
+	cp .env.prod .env &&\
 	make install &&\
 	make run'
 	rm tipsy.zip
