@@ -18,6 +18,10 @@
         align-items: center;
         justify-content: center;
     }
+    .middle-board {
+        display: flex;
+        flex-direction: column;
+    }
     .game{
         display: flex;
         align-items: center;
@@ -41,6 +45,7 @@
         font-weight: bold;
         font-size: large;
         flex: 1;
+        align-self: stretch;
     }
 
     {% for red_puck in board.getPucksIdsBy('red', false) %}
@@ -96,7 +101,7 @@
     {% endfor %}
 </style>
 <div class="game">
-    <form id="cellactions" method="POST" action={{(board.shouldReplacePucks())?"game/replacepuck":"/game/tilt"}}>
+    <form id="cellactions" method="POST" action={{(board.shouldReplacePucks())?"game/replacepuck":"/game/tilt"}} class="middle-board">
         {% if not board.shouldReplacePucks() %}
         <button name="action" type="submit" value="north" class="tilt">Tilt</button>
         {% endif %}
