@@ -225,7 +225,7 @@ class Board
         }));
     }
 
-    private function replacePuck(array $puck)
+    public function replacePuck(array $puck)
     {
         $freeCells = $this->getFreeCells();
         $index = rand(0, count($freeCells) - 1);
@@ -256,13 +256,16 @@ class Board
         return $this->getFallenPucksCount() > 0 && $this->remainingTurns == 0;
     }
 
-    private function getFallenPucksCount(): int
+    public function getFallenPucksCount(): int
     {
         $blueFallenPuck = $this->getFallenPucks(Board::BLUE);
         $redFallenPuck = $this->getFallenPucks(Board::RED);
         return $redFallenPuck + $blueFallenPuck;
     }
 
+    public function getCurrentOpponent(): string{
+        return array_search(false, $this->players);
+    }
     public function setPlayers(array $players)
     {
         foreach ($players as $player) {
@@ -291,11 +294,10 @@ class Board
             }
         }
         $this->updateRemainingTurns();
-        if ($this->remainingTurns == 0) {
+
+        if ($this->remainingTurns == 0 && $this->getFallenPucksCount() == 0) {
             $this->remainingTurns = 2;
-            if ($this->getFallenPucksCount() == 0) {
-                $this->switchPlayers();
-            }
+            $this->switchPlayers();
         }
     }
 }

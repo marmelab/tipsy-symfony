@@ -8,7 +8,7 @@ game:
 
 replace:
    path: /game/replace
-   methods: GET
+   methods: POST
    controller: App\Controller\GameController::replace
 
 tilt:

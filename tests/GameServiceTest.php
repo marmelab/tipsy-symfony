@@ -43,12 +43,17 @@ class GameServiceTest extends TestCase
         $board = $gameService->newGame();
         $this->assertEquals($board->getCellType(3, 3)[Board::COLOR_KEY], Board::BLACK);
         // WHEN
-        $gameService->tilt($board, Board::NORTH);
-        $gameService->tilt($board, Board::WEST);
-        $gameService->tilt($board, Board::NORTH);
-        $gameService->tilt($board, Board::WEST);
-        $gameService->tilt($board, Board::NORTH);
-        $gameService->tilt($board, Board::SOUTH);
+        try {
+            $gameService->tilt($board, Board::NORTH);
+            $gameService->tilt($board, Board::WEST);
+            $gameService->tilt($board, Board::NORTH);
+            $gameService->tilt($board, Board::WEST);
+            $gameService->tilt($board, Board::NORTH);
+            $gameService->tilt($board, Board::SOUTH);
+            //THEN
+        } catch (Exception $e) {
+            $this->fail('An error occured when succecingly moving to North West Noth West North South', $e);
+        }
     }
 
     public function test_tilt_north_east_north_east_north_east_should_move_a_puck_out()
@@ -78,7 +83,7 @@ class GameServiceTest extends TestCase
 
         // THEN
         $this->assertNotNull($board->getCurrentPlayer());
-        $this->assertContains($board->getCurrentPlayer(), ['Blue', 'Red']);
+        $this->assertContains($board->getCurrentPlayer(), [Board::BLUE, Board::RED]);
     }
 
 
@@ -122,5 +127,36 @@ class GameServiceTest extends TestCase
 
         // THEN
         $this->assertNotEquals($currentPlayer, $board->getCurrentPlayer());
+        $this->assertGreaterThan(0, $board->getRemainingTurns());
+    }
+
+    public function test_we_should_have_to_replace_pucks_when_a_puck_have_fallen_and_no_tilts_left()
+    {
+        // GIVEN
+        $gameService = new GameService();
+        $board = $gameService->newGame();
+        $this->assertEquals($board->getCellType(3, 3)[Board::COLOR_KEY], Board::BLACK);
+        // WHEN
+        $gameService->tilt($board, Board::NORTH);
+        $gameService->tilt($board, Board::EAST);
+        $gameService->tilt($board, Board::NORTH);
+        $gameService->tilt($board, Board::EAST);
+
+        // THEN
+        $this->assertTrue($board->shouldReplacePucks());
+    }
+
+    public function test_we_sould_not_have_to_replace_pucks_when_no_puck_have_fallen_and_no_tilts_left()
+    {
+        // GIVEN
+        $gameService = new GameService();
+        $board = $gameService->newGame();
+        $this->assertEquals($board->getCellType(3, 3)[Board::COLOR_KEY], Board::BLACK);
+        // WHEN
+        $gameService->tilt($board, Board::NORTH);
+        $gameService->tilt($board, Board::EAST);
+
+        // THEN
+        $this->assertFalse($board->shouldReplacePucks());
     }
 }

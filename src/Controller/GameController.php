@@ -47,6 +47,17 @@ class GameController extends AbstractController
         ]);
     }
 
+    public function replacePuck(Request $request){
+        $playerHash = $request->cookies->get($this::COOKIE_KEY);
+        if (!$playerHash || !$this->session->get($playerHash)) {
+            return $this->redirectToRoute('index');
+        }
+        $board = $this->session->get($playerHash);
+        // $this->gameService->replacePuck($board);
+
+        return $this->redirectToRoute('game');
+    }
+
     public function tilt(Request $request)
     {
         $playerHash = $request->cookies->get($this::COOKIE_KEY);
