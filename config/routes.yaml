@@ -6,7 +6,12 @@ game:
    methods: GET
    controller: App\Controller\GameController::show
 
+replace:
+   path: /game/replacepuck
+   methods: POST
+   controller: App\Controller\GameController::replacePuck
+
 tilt:
-   path: /game
+   path: /game/tilt
    methods: POST
    controller: App\Controller\GameController::tilt

@@ -23,18 +23,27 @@ class GameService
     );
     private $black_puck = array(3, 3);
     private $exits = array(array(1, -1), array(7, 1), array(-1, 5), array(5, 7));
+    private $players = array(Board::RED, Board::BLUE);
 
-    public function newGame()
+    public function newGame(): Board
     {
         $board = new Board(7, 7);
         $this->initEmptyBoard($board);
         $this->initObstacles($board);
         $this->initPucks($board);
         $this->initExits($board);
+        $this->initPlayers($board);
         return $board;
     }
 
-    private function initExits($board)
+    private function initPlayers(Board $board)
+    {
+        $firstPlayer = $this->players[rand(0, 1)];
+        $board->setPlayers($this->players);
+        $board->setCurrentPlayer($firstPlayer);
+        $board->setRemainingTurns(2);
+    }
+    private function initExits(Board $board)
     {
         foreach ($this->exits as $exit) {
             $board->addExit($exit);
@@ -50,6 +59,21 @@ class GameService
             $board->addPuck($blue_puck, Board::BLUE);
         }
         $board->addPuck($this->black_puck, Board::BLACK);
+    }
+
+    public function replacePuck(Board $board)
+    {
+        $opponent = $board->getCurrentOpponent();
+        $opponentPucks = $board->getFallenPucks($opponent);
+
+        $player = $board->getCurrentPlayer();
+        $currentPlayerPucks = $board->getFallenPucks($player);
+
+        if ($opponentPucks > 0) {
+            $player = $opponent;
+        }
+        $board->decrementFallenPucks($player);
+        $board->replacePuck($player);
     }
 
     private function initEmptyBoard(Board $board)
@@ -81,6 +105,6 @@ class GameService
 
     public function tilt(Board $board, String $direction)
     {
-        return $board->tilt($direction);
+        $board->tilt($direction);
     }
 }
