@@ -15,8 +15,8 @@ symfony-cli:
 
 deploy:
 	git archive -o tipsy.zip HEAD
-	scp -i ${key} tipsy.zip ubuntu@ec2-3-250-16-46.eu-west-1.compute.amazonaws.com:~/
-	ssh -i ${key} ubuntu@ec2-3-250-16-46.eu-west-1.compute.amazonaws.com \
+	scp -i ${key} tipsy.zip ${user}@${host}:~/
+	ssh -i ${key} ${user}@${host} \
 	'unzip -ou tipsy.zip -d tipsy && \
 	cd tipsy &&\
 	cp .env.prod .env &&\
