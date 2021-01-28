@@ -3,26 +3,20 @@
 namespace App\Controller;
 
 use App\Entity\Board;
-use App\Repository\BoardRepository;
 use App\Services\GameService;
-use Doctrine\ORM\EntityManagerInterface;
-use GraphDS\Persistence\ExportGraph;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Cookie;
 use Symfony\Component\HttpFoundation\Request;
-use Symfony\Component\HttpFoundation\Session\SessionInterface;
 use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 
 class GameController extends AbstractController
 {
     const COOKIE_KEY = 'tipsy-game';
     private $gameService;
-    private $session;
 
-    public function __construct(GameService $gameService, SessionInterface $session, BoardRepository $boardRepo)
+    public function __construct(GameService $gameService)
     {
         $this->gameService = $gameService;
-        $this->session = $session;
     }
 
     public function new()
@@ -57,35 +51,46 @@ class GameController extends AbstractController
         ]);
     }
 
-    public function replacePuck(Request $request)
+    public function replacePuck(int $id, Request $request)
     {
         $playerHash = $request->cookies->get($this::COOKIE_KEY);
-        if (!$playerHash || !$this->session->get($playerHash)) {
+        if (!$playerHash) {
             return $this->redirectToRoute('index');
         }
-        $board = $this->session->get($playerHash);
+        $board = $this->getDoctrine()
+            ->getRepository(Board::class)
+            ->find($id);
+        $board->deserializeGraph();
         $this->gameService->replacePuck($board);
 
-        return $this->redirectToRoute('game');
+        $board->serializeGraph();
+        $entityManager = $this->getDoctrine()->getManager();
+        $entityManager->flush();
+
+        return $this->redirectToRoute('game', ['id' => $board->getId()]);
     }
 
-    public function tilt(Request $request)
+    public function tilt(int $id, Request $request)
     {
         $playerHash = $request->cookies->get($this::COOKIE_KEY);
-        if (!$playerHash || !$this->session->get($playerHash)) {
+        if (!$playerHash) {
             return $this->redirectToRoute('index');
         }
-
-        $board = $this->session->get($playerHash);
+        $board = $this->getDoctrine()
+            ->getRepository(Board::class)
+            ->find($id);
+        $board->deserializeGraph();
 
         $action = $request->get('action');
         if (!in_array($action, [Board::NORTH, Board::SOUTH, Board::EAST, Board::WEST])) {
             throw new BadRequestHttpException("Wrong action parameter");
         }
         $this->gameService->tilt($board, $action);
-        $this->session->set($playerHash, $board);
+        $board->serializeGraph();
+        $entityManager = $this->getDoctrine()->getManager();
+        $entityManager->flush();
 
-        return $this->redirectToRoute('game');
+        return $this->redirectToRoute('game', ['id' => $board->getId()]);
     }
 
     protected function generatePlayerHash()

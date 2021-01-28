@@ -396,7 +396,6 @@ class Board
             $node = $graphElem->addChild('node');
             $node->addAttribute('id', $vertexKey);
             if (null !== ($value = $vertex->getValue())) {
-                var_dump($value);
                 $data = $node->addChild('data', serialize($value));
                 $data->addAttribute('key', 'd0');
             }

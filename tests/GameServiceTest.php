@@ -198,4 +198,43 @@ class GameServiceTest extends TestCase
         $this->assertEquals(1, $board->getScore(Board::BLUE));
         $this->assertEquals(0, $board->getScore(Board::RED));
     }
+
+    public function test_serialize()
+    {
+        // GIVEN
+        $gameService = new GameService();
+        $board = $gameService->newGame();
+        $board->serializeGraph();
+        $serializeGraph = $board->rawGraph;
+        // WHEN
+        $gameService->tilt($board, Board::NORTH);
+        $gameService->tilt($board, Board::EAST);
+        $gameService->tilt($board, Board::NORTH);
+        $gameService->tilt($board, Board::EAST);
+
+        $board->serializeGraph();
+        // THEN
+        $this->assertNotEquals($serializeGraph, $board->rawGraph);
+    }
+
+    public function test_deserialize()
+    {
+        // GIVEN
+        $gameService = new GameService();
+        $board = $gameService->newGame();
+        $board->serializeGraph();
+        $serializeGraph = $board->rawGraph;
+        // WHEN
+        $gameService->tilt($board, Board::NORTH);
+        $gameService->tilt($board, Board::EAST);
+        $gameService->tilt($board, Board::NORTH);
+        $gameService->tilt($board, Board::EAST);
+
+        $board->serializeGraph();
+        // THEN
+        $board->rawGraph = $serializeGraph;
+        $board->deserializeGraph();
+        $this->assertEquals($serializeGraph, $board->rawGraph);
+    }
+
 }
