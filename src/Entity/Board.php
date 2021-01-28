@@ -3,10 +3,14 @@
 namespace App\Entity;
 
 use GraphDS\Graph\DirectedGraph;
-use Doctrine\ORM\Mapping as ORM;
 use GraphDS\Vertex\DirectedVertex;
+use Doctrine\ORM\Mapping as ORM;
+use DOMDocument;
+use GraphDS\Persistence\ExportGraph;
+use SimpleXMLElement;
+
 /**
- * @ORM\Entity(repositoryClass="App\Repository\GameRepository")
+ * @ORM\Entity(repositoryClass="App\Repository\BoardRepository")
  */
 class Board
 {
@@ -40,10 +44,16 @@ class Board
     private $height = 7;
 
     /**
+     * @ORM\Column(type="string")
+     */
+    public $rawGraph;
+
+    /**
      * @ORM\Column(type="json")
      */
-    public $graph;
+    public $players;
 
+    public $graph;
     /**
      * @ORM\Column(type="json")
      */
@@ -350,5 +360,101 @@ class Board
             $this->remainingTurns = 2;
             $this->switchPlayers();
         }
+    }
+
+    public function serializeGraph()
+    {
+        $directionality = $this->graph->directed ? 'directed' : 'undirected';
+        $export = new SimpleXMLElement('<?xml version="1.0" encoding="UTF-8"?>'
+            . '<graphml xmlns="http://graphml.graphdrawing.org/xmlns" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://graphml.graphdrawing.org/xmlns http://graphml.graphdrawing.org/xmlns/1.0/graphml.xsd">'
+            . '</graphml>');
+
+        $keyNode = $export->addChild('key');
+        $keyNode->addAttribute('id', 'd0');
+        $keyNode->addAttribute('for', 'node');
+        $keyNode->addAttribute('attr.name', 'value');
+        $keyNode->addAttribute('attr.type', 'string');
+        $keyNode->addChild('default', '');
+
+        $keyEdge = $export->addChild('key');
+        $keyEdge->addAttribute('id', 'd1');
+        $keyEdge->addAttribute('for', 'edge');
+        $keyEdge->addAttribute('attr.name', 'weight');
+        $keyEdge->addAttribute('attr.type', 'double');
+        $keyEdge->addChild('default', '');
+
+        $graphElem = $export->addChild('graph');
+        $graphElem->addAttribute('id', 'G');
+        $graphElem->addAttribute('edgedefault', $directionality);
+        $graphElem->addAttribute('parse.nodes', $this->graph->getVertexCount());
+        $graphElem->addAttribute('parse.edges', $this->graph->getEdgeCount());
+        $graphElem->addAttribute('parse.nodeids', 'free');
+        $graphElem->addAttribute('parse.edgeids', 'free');
+        $graphElem->addAttribute('parse.order', 'nodesfirst');
+
+        foreach ($this->graph->vertices as $vertexKey => $vertex) {
+            $node = $graphElem->addChild('node');
+            $node->addAttribute('id', $vertexKey);
+            if (null !== ($value = $vertex->getValue())) {
+                var_dump($value);
+                $data = $node->addChild('data', serialize($value));
+                $data->addAttribute('key', 'd0');
+            }
+        }
+        foreach ($this->graph->edges as $edgeSource) {
+            foreach ($edgeSource as $edgeTarget) {
+                $edge = $graphElem->addChild('edge');
+                $edge->addAttribute('source', $edgeTarget->vertices['from']);
+                $edge->addAttribute('target', $edgeTarget->vertices['to']);
+                if (null !== ($value = $edgeTarget->getValue())) {
+                    $data = $edge->addChild('data', $value);
+                    $data->addAttribute('key', 'd1');
+                }
+            }
+        }
+
+        $dom = new DOMDocument('1.0');
+        $dom->preserveWhiteSpace = false;
+        $dom->formatOutput = true;
+        $dom->loadXML($export->asXML());
+
+        $this->rawGraph = $dom->saveXML();
+    }
+
+    public function deserializeGraph()
+    {
+
+        $import = new SimpleXMLElement($this->rawGraph);
+        $graph = new DirectedGraph();
+
+
+        foreach ($import->graph->node as $node) {
+            $vertex = (string) $node['id'];
+            $value = (string) $node->data;
+            if (empty($value)) {
+                $default = $import->xpath('key[@for="node"]/default');
+                if (!empty($default)) {
+                    $value = (string) $default;
+                }
+            }
+            $graph->addVertex($vertex);
+            $graph->vertices[$vertex]->setValue(unserialize($value));
+        }
+
+        foreach ($import->graph->edge as $edge) {
+            $edgeSource = (string) $edge['source'];
+            $edgeTarget = (string) $edge['target'];
+            $value = (string) $edge->data;
+            if (empty($value)) {
+                $default = $import->xpath('key[@for="edge"]/default');
+                if (!empty($default)) {
+                    $value = (string) $default;
+                }
+            }
+            $graph->addEdge($edgeSource, $edgeTarget);
+            $graph->edge($edgeSource, $edgeTarget)->setValue($value);
+        }
+
+        $this->graph = $graph;
     }
 }

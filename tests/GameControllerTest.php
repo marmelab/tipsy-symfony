@@ -12,7 +12,6 @@ class GameControllerTest extends WebTestCase
         $client = static::createClient();
         $crawler = $client->request('GET', '/');
 
-        $this->assertResponseRedirects('/game');
         $this->assertResponseHasCookie(GameController::COOKIE_KEY);
 
     }
@@ -20,7 +19,7 @@ class GameControllerTest extends WebTestCase
     public function test_it_should_redirect_to_index_when_requesting_game_without_cookie()
     {
         $client = static::createClient();
-        $crawler = $client->request('GET', '/game');
+        $crawler = $client->request('GET', '/game/1234');
 
         $this->assertResponseRedirects('/');
     }
