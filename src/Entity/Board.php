@@ -29,6 +29,7 @@ class Board
     public $graph;
 
     private $fallenPucks = [Board::BLUE => 0, Board::RED => 0];
+    private $scores = [Board::BLUE => 0, Board::RED => 0];
 
     public function __construct(int $width, int $height)
     {
@@ -236,12 +237,16 @@ class Board
         $index = rand(0, count($freeCells) - 1);
         $randomFreeCell = $freeCells[$index];
         $this->addPuck(array_search($randomFreeCell, $this->graph->vertices), $color, True);
-        if($this->getFallenPucksCount()==0){
+        if ($this->getFallenPucksCount() == 0) {
             $this->remainingTurns = 2;
             $this->switchPlayers();
         }
     }
 
+    public function getScore(string $player): int
+    {
+        return $this->scores[$player];
+    }
     public function movePuckTo(DirectedVertex $puck, string $direction)
     {
         $neighbor = $this->getNeighbor($puck, $direction);
@@ -257,6 +262,9 @@ class Board
             && $nextFreeCell->getValue()[Board::EXIT]
             && $puckValue[Board::COLOR_KEY] != Board::BLACK
         ) {
+            if (!$puckValue[Board::FLIPPED_KEY]) {
+                $this->scores[$puckValue[Board::COLOR_KEY]]++;
+            }
             $this->fallenPucks[$puckValue[Board::COLOR_KEY]]++;
             return;
         }

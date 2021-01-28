@@ -178,7 +178,24 @@ class GameServiceTest extends TestCase
         // player reswitch
 
         // THEN
-        $this->assertGreaterThan(0,$board->getRemainingTurns());
+        $this->assertGreaterThan(0, $board->getRemainingTurns());
         $this->assertEquals($currentPlayer, $board->getCurrentPlayer());
+    }
+
+    public function test_we_should_increase_score_of_the_blue_player_when_a_blue_puck_have_fallen()
+    {
+        // GIVEN
+        $gameService = new GameService();
+        $board = $gameService->newGame();
+        $this->assertEquals($board->getCellType(3, 3)[Board::COLOR_KEY], Board::BLACK);
+        // WHEN
+        $gameService->tilt($board, Board::NORTH);
+        $gameService->tilt($board, Board::EAST);
+        $gameService->tilt($board, Board::NORTH);
+        $gameService->tilt($board, Board::EAST);
+
+        // THEN
+        $this->assertEquals(1, $board->getScore(Board::BLUE));
+        $this->assertEquals(0, $board->getScore(Board::RED));
     }
 }

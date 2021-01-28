@@ -179,6 +179,8 @@
         {% endif %}
         <div style="color:{{board.getCurrentPlayer()|lower}}">
             {{board.getCurrentPlayer()}} player remaing turns {{board.getRemainingTurns()}}
+            <div>Blue score : {{board.getScore('blue')}}</div>
+            <div>Red score : {{board.getScore('red')}}</div>
             <div>Blue Fallen pucks {{board.getFallenPucks('blue')}}</div>
             <div>Red Fallen pucks {{board.getFallenPucks('red')}}</div>
             <div>All Fallen pucks {{board.getFallenPucksCount()}}</div>
