@@ -2,13 +2,30 @@
 
 {% block title %}Tipsy{% endblock %}
 
+{% block stylesheets %}
+<link href="https://fonts.googleapis.com/css?family=Pacifico" rel="stylesheet" type="text/css">
+{% endblock %}
+
 {% block body %}
 
+{% set red="#DC143C" %}
+{% set blue="#6495ED" %}
 <style>
     .cell{
         width: 40px;
         height: 40px;
         border : 2px solid black
+    }
+    .player {
+        align-self: stretch;
+        margin-left: 40px;
+        margin-right: 40px;
+        align-items: center;
+        display: flex;
+        flex-direction: column;
+    }
+    .player h2 {
+        font-size: 50px;
     }
     .obstacle{
         background-color: black
@@ -26,18 +43,19 @@
         display: flex;
         align-items: center;
         justify-content: center;
+        font-family: pacifico,cursive;
     }
     .top-exit {
-        border-top: 2px solid lightgrey;
+        border-top: 2px solid white;
     }
     .right-exit {
-        border-right: 2px solid lightgrey;
+        border-right: 2px solid white;
     }
     .left-exit {
-        border-left: 2px solid lightgrey;
+        border-left: 2px solid white;
     }
     .bottom-exit {
-        border-bottom: 2px solid lightgrey;
+        border-bottom: 2px solid white;
     }
     .tilt {
         border: none;
@@ -45,18 +63,61 @@
         font-size: large;
         flex: 1;
         align-self: stretch;
+        font-family : inherit;
+        background-color:{{(board.getCurrentPlayer()=='red') ? red:blue}};
+    }
+    .tilt:hover{
+        opacity: 0.50;
+    }
+    .remaining {
+        display: flex;
+        justify-content: center;
+        font-size: 100px;
+    }
+    .replace {
+        border: none;
+        border-radius: 40px;
+        align-self: center;
+        font-family: pacifico;
+        padding: 10px;
+        margin: 15px;
+        font-weight: bold;
+        font-size: 30px;
+        flex: 1;
+        align-self: stretch;
+        background-color:{{(board.getCurrentPlayer()=='red') ? red:blue}};
+    }
+    .title {
+        font-size: 100px;
+        font-family: pacifico;
+        text-align: center;
+        margin: 10px;
+    }
+    .blue {
+        color: {{blue}};
+    }
+    .red {
+        color: {{red}};
+    }
+    .top {
+        border-top-left-radius: 40px;
+        border-top-right-radius: 40px;
+    }
+    .bottom {
+        border-bottom-left-radius: 40px;
+        border-bottom-right-radius: 40px;
     }
     .blue_puck {
         width: 40px;
         height: 40px;
         border-radius: 20px;
-        background-color: blue;
+        background-color: {{blue}};
     }
     .red_puck {
         width: 40px;
         height: 40px;
         border-radius: 20px;
-        background-color: red;
+        background-color: {{red}};
     }
 
     {% for red_puck in board.getPucksIdsBy('red', false) %}
@@ -65,17 +126,18 @@
         width: 40px;
         height: 40px;
         border-radius: 20px;
-        background-color: red;
+        background-color: {{red}};
     }
 
     {% endfor %}
     {% for flipped_red_puck in board.getPucksIdsBy('red', true) %}
 
     #cell{{flipped_red_puck}}{
-        width: 40px;
-        height: 40px;
+        width: 28px;
+        height: 28px;
         border-radius: 20px;
-        background-color: darkred;
+        border: 6px solid {{red}};
+        background-color: darkgrey;
     }
 
     {% endfor %}
@@ -85,7 +147,7 @@
         width: 40px;
         height: 40px;
         border-radius: 20px;
-        background-color: blue;
+        background-color: {{blue}};
     }
 
     {% endfor %}
@@ -93,10 +155,11 @@
     {% for flipped_blue_puck in board.getPucksIdsBy('blue', true) %}
 
     #cell{{flipped_blue_puck}}{
-        width: 40px;
-        height: 40px;
+        width: 28px;
+        height: 28px;
         border-radius: 20px;
-        background-color: darkblue;
+        border: 6px solid {{blue}};
+        background-color: darkgrey;
     }
 
     {% endfor %}
@@ -111,10 +174,11 @@
 
     {% endfor %}
 </style>
+<div class="title">Tipsy</div>
 <div class="game">
-    <div class="player">
+    <div class="player blue">
         <h1>BLUE</h1>
-        <h1>{{board.getScore('blue')}}</h1>
+        <h2>{{board.getScore('blue')}}</h2>
         {% for i in range(0, board.getFallenPucks('blue')) %}
             {% if i != 0 %}
                 <div class="blue_puck"></div>
@@ -123,7 +187,7 @@
     </div>
     <form id="cellactions" method="POST" action={{(board.shouldReplacePucks())?"game/replacepuck":"/game/tilt"}} class="middle-board">
 
-        <button name="action" type="submit" value="north" class="tilt" {% if board.shouldReplacePucks() %}disabled{% endif %}>Tilt</button>
+        <button name="action" type="submit" value="north" class="tilt top" {% if board.shouldReplacePucks() %}disabled{% endif %}>Tilt</button>
         <div class="board">
             <button name="action" type="submit" value="west" class="tilt" {% if board.shouldReplacePucks() %}disabled{% endif %}>Tilt</button>
             <div class="row">
@@ -192,22 +256,19 @@
             <button name="action" type="submit" value="east" class="tilt" {% if board.shouldReplacePucks() %}disabled{% endif %}>Tilt</button>
         </div>
 
-        <button name="action" type="submit" value="south" class="tilt" {% if board.shouldReplacePucks() %}disabled{% endif %}>Tilt</button>
+        <button name="action" type="submit" value="south" class="tilt bottom" {% if board.shouldReplacePucks() %}disabled{% endif %}>Tilt</button>
         {% if board.shouldReplacePucks() %}
-        <button name="action" type="submit" value="replace" class="tilt">Replace</button>
+        <button name="action" type="submit" value="replace" class="replace">Replace</button>
         {% endif %}
-        <div style="color:{{board.getCurrentPlayer()|lower}}">
-            {{board.getCurrentPlayer()}} player remaing turns {{board.getRemainingTurns()}}
-
-            <div>Red score : {{board.getScore('red')}}</div>
-            <div>Blue Fallen pucks {{board.getFallenPucks('blue')}}</div>
-            <div>Red Fallen pucks {{board.getFallenPucks('red')}}</div>
-
+        {% if not board.shouldReplacePucks() %}
+        <div class="remaining">
+            {{board.getRemainingTurns()}}
         </div>
+        {% endif %}
     </form>
-    <div class="player">
+    <div class="player red">
         <h1>RED</h1>
-        <h1>{{board.getScore('red')}}</h1>
+        <h2>{{board.getScore('red')}}</h2>
         {% for i in range(0, board.getFallenPucks('red')) %}
             {% if i != 0 %}
                 <div class="red_puck"></div>
