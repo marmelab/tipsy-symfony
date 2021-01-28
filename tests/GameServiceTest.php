@@ -75,7 +75,7 @@ class GameServiceTest extends TestCase
         $this->assertEquals(2, $board->getFallenPucks(Board::BLUE));
     }
 
-    public function test_it_should_randomly_set_current_user_when_starting_a_new_game()
+    public function test_it_should_set_current_user_when_starting_a_new_game()
     {
         // GIVEN
         $gameService = new GameService();
