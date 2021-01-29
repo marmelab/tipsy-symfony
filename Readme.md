@@ -48,7 +48,7 @@ It will :
 
 ## How is it done?
 
-This project is using (symfony)[https://symfony.com/], an MVC framework for PHP.
+This project is using (https://symfony.com/)[symfony], an MVC framework for PHP.
 The constraint of this project is to only do Server Side Rendering, that means, no rendering have to be done on the client, the server only return fully build html.
 
 ## Symfony cli
