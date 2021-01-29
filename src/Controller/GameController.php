@@ -62,7 +62,7 @@ class GameController extends AbstractController
             ->getRepository(Board::class)
             ->find($id);
         $this->gameService->replacePuck($board);
-        $entityManager->persist($board);
+
         $entityManager->flush();
 
         return $this->redirectToRoute('game', ['id' => $board->getId()]);
@@ -85,7 +85,7 @@ class GameController extends AbstractController
             throw new BadRequestHttpException("Wrong action parameter");
         }
         $this->gameService->tilt($board, $action);
-        $entityManager->persist($board);
+
         $entityManager->flush();
 
         return $this->redirectToRoute('game', ['id' => $board->getId()]);

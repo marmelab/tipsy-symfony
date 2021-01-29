@@ -360,5 +360,7 @@ class Board
             $this->remainingTurns = 2;
             $this->switchPlayers();
         }
+
+        $this->graph = clone $this->graph;
     }
 }
