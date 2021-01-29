@@ -185,7 +185,7 @@
             {% endif %}
         {% endfor %}
     </div>
-    <form id="cellactions" method="POST" action={{(board.shouldReplacePucks())?"game/replacepuck":"/game/tilt"}} class="middle-board">
+    <form id="cellactions" method="POST" action={{(board.shouldReplacePucks())?"game/#{board.getId()}/replacepuck":"/game/#{board.getId()}/tilt"}} class="middle-board">
 
         <button name="action" type="submit" value="north" class="tilt top" {% if board.shouldReplacePucks() %}disabled{% endif %}>Tilt</button>
         <div class="board">

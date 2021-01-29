@@ -3,9 +3,15 @@
 namespace App\Entity;
 
 use GraphDS\Graph\DirectedGraph;
-use Doctrine\ORM\Mapping as ORM;
 use GraphDS\Vertex\DirectedVertex;
+use Doctrine\ORM\Mapping as ORM;
+use DOMDocument;
+use GraphDS\Persistence\ExportGraph;
+use SimpleXMLElement;
 
+/**
+ * @ORM\Entity(repositoryClass="App\Repository\BoardRepository")
+ */
 class Board
 {
     const COLOR_KEY = "color";
@@ -20,18 +26,49 @@ class Board
     const BLACK = "black";
     const EXIT = "exit";
 
+    /**
+     * @ORM\Id()
+     * @ORM\GeneratedValue()
+     * @ORM\Column(type="integer")
+     */
     private $id;
 
+    /**
+     * @ORM\Column(type="integer")
+     */
     private $width = 7;
 
+    /**
+     * @ORM\Column(type="integer")
+     */
     private $height = 7;
 
+    /**
+     * @ORM\Column(type="json")
+     */
+    public $players;
+
+    /**
+     * @ORM\Column(type="object")
+     */
     public $graph;
 
+    /**
+     * @ORM\Column(type="json")
+     */
     private $fallenPucks = [Board::BLUE => 0, Board::RED => 0];
+
+    /**
+     * @ORM\Column(type="json")
+     */
     private $scores = [Board::BLUE => 0, Board::RED => 0];
 
-    public function __construct(int $width, int $height)
+    /**
+     * @ORM\Column(type="integer")
+     */
+    private $remainingTurns;
+
+    public function __construct(?int $width, ?int $height)
     {
         $this->width = $width;
         $this->height = $height;
@@ -144,6 +181,7 @@ class Board
     }
     public function getPucksIdsBy(string $color, ?bool $flipped): array
     {
+        var_dump($this->graph);
         $pucks = array_filter($this->graph->vertices, function ($vertex) use ($color, $flipped) {
             return $vertex->getValue()
                 && array_key_exists(Board::COLOR_KEY, $vertex->getValue())
