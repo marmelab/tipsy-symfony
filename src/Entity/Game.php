@@ -5,9 +5,6 @@ namespace App\Entity;
 use GraphDS\Graph\DirectedGraph;
 use GraphDS\Vertex\DirectedVertex;
 use Doctrine\ORM\Mapping as ORM;
-use DOMDocument;
-use GraphDS\Persistence\ExportGraph;
-use SimpleXMLElement;
 
 /**
  * @ORM\Entity(repositoryClass="App\Repository\BoardRepository")
@@ -44,7 +41,7 @@ class Game
     private $height = 7;
 
     /**
-     * @ORM\Column(type="json")
+     * @ORM\Column(type="array")
      */
     public $players;
 
@@ -371,5 +368,31 @@ class Game
         }
 
         $this->graph = clone $this->graph;
+    }
+
+    public function isFull(): bool
+    {
+        foreach (array_keys($this->players) as $color) {
+            if (!$this->players[$color]['hash']) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    public function addPlayer(string $playerHash)
+    {
+        foreach (array_keys($this->players) as $color) {
+            if (!$this->players[$color]['hash']) {
+                $this->players[$color]['hash'] = $playerHash;
+            }
+        }
+    }
+
+    public function hasPlayer(string $playerHash): bool
+    {
+        return !empty(array_filter($this->players, function ($player) use ($playerHash) {
+            return $player['hash'] == $playerHash;
+        }));
     }
 }

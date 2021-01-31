@@ -176,6 +176,11 @@
 </style>
 <div class="title">Tipsy</div>
 <div class="game">
+
+    {% if not game.isFull() %}
+        <div>WAITING FOR PLAYER</div>
+        {{dump(game.players)}}
+    {% else %}
     <div class="player blue">
         <h1>BLUE</h1>
         <h2>{{game.getScore('blue')}}</h2>
@@ -275,6 +280,7 @@
             {% endif %}
         {% endfor %}
     </div>
+    {% endif %}
 </div>
 
 {% endblock %}

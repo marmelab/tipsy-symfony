@@ -20,7 +20,7 @@ class GameController extends AbstractController
         $this->gameService = $gameService;
     }
 
-    public function new(EntityManagerInterface $manager)
+    public function new()
     {
 
         $playerHash = $this->generatePlayerHash();
@@ -37,22 +37,28 @@ class GameController extends AbstractController
 
     public function show(int $id, Request $request)
     {
+        if (empty($id)) {
+            return $this->redirectToRoute('index');
+        }
         $game = $this->getDoctrine()
             ->getRepository(Game::class)
             ->find($id);
-
+        if (empty($game)) {
+            return $this->redirectToRoute('index');
+        }
         $playerHash = $request->cookies->get($this::COOKIE_KEY);
-        $response = $this->render('game/game.html.twig', [
-            'game' => $game
-        ]);
-        if (!$playerHash || empty($id)) {
-            if ($game->isFull()){
+        if (empty($playerHash) || !$game->hasPlayer($playerHash)) {
+            if ($game->isFull()) {
                 return $this->redirectToRoute('index');
             }
             $playerHash = $this->generatePlayerHash();
-            $response->headers->setCookie(new Cookie($this::COOKIE_KEY, $playerHash));
+            $game->addPlayer($playerHash);
+            $this->getDoctrine()->getManager()->flush();
         }
-
+        $response = $this->render('game/game.html.twig', [
+            'game' => $game
+        ]);
+        $response->headers->setCookie(new Cookie($this::COOKIE_KEY, $playerHash));
         return $response;
     }
 
