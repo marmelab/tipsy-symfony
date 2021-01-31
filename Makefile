@@ -3,6 +3,7 @@ install:
 	docker-compose build
 	docker-compose run --rm symfony bash -ci 'composer install'
 	docker-compose run --rm symfony bash -ci 'composer update'
+	docker-compose run --rm symfony bash -ci 'symfony console doctrine:schema:update --force'
 
 run:
 	docker-compose up --force-recreate -d
