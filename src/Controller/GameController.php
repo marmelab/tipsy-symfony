@@ -2,7 +2,7 @@
 
 namespace App\Controller;
 
-use App\Entity\Board;
+use App\Entity\Game;
 use App\Services\GameService;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -22,73 +22,75 @@ class GameController extends AbstractController
 
     public function new(EntityManagerInterface $manager)
     {
-        $game = $this->gameService->newGame();
+
+        $playerHash = $this->generatePlayerHash();
+        $game = $this->gameService->newGame($playerHash);
         $entityManager = $this->getDoctrine()->getManager();
         $entityManager->persist($game);
         $entityManager->flush();
 
-        $playerHash = $this->generatePlayerHash();
         $response = $this->redirectToRoute('game', ['id' => $game->getId()]);
         $response->headers->setCookie(new Cookie($this::COOKIE_KEY, $playerHash));
-
 
         return $response;
     }
 
     public function show(int $id, Request $request)
     {
-        $playerHash = $request->cookies->get($this::COOKIE_KEY);
-        if (!$playerHash) {
-            return $this->redirectToRoute('index');
-        }
-        $board = $this->getDoctrine()
-            ->getRepository(Board::class)
+        $game = $this->getDoctrine()
+            ->getRepository(Game::class)
             ->find($id);
 
-        return $this->render('game/game.html.twig', [
-            'board' => $board
+        $playerHash = $request->cookies->get($this::COOKIE_KEY);
+        $response = $this->render('game/game.html.twig', [
+            'game' => $game
         ]);
+        if (!$playerHash || empty($id)) {
+            if ($game->isFull()){
+                return $this->redirectToRoute('index');
+            }
+            $playerHash = $this->generatePlayerHash();
+            $response->headers->setCookie(new Cookie($this::COOKIE_KEY, $playerHash));
+        }
+
+        return $response;
     }
 
     public function replacePuck(int $id, Request $request)
     {
-        $playerHash = $request->cookies->get($this::COOKIE_KEY);
-        if (!$playerHash) {
-            return $this->redirectToRoute('index');
-        }
+        // $playerHash = $request->cookies->get($this::COOKIE_KEY);
+        // if (!$playerHash) {
+        //     return $this->redirectToRoute('index');
+        // }
 
         $entityManager = $this->getDoctrine()->getManager();
-        $board = $entityManager
-            ->getRepository(Board::class)
+        $game = $entityManager
+            ->getRepository(Game::class)
             ->find($id);
-        $this->gameService->replacePuck($board);
+        $this->gameService->replacePuck($game);
 
         $entityManager->flush();
 
-        return $this->redirectToRoute('game', ['id' => $board->getId()]);
+        return $this->redirectToRoute('game', ['id' => $game->getId()]);
     }
 
     public function tilt(int $id, Request $request)
     {
-        $playerHash = $request->cookies->get($this::COOKIE_KEY);
-        if (!$playerHash) {
-            return $this->redirectToRoute('index');
-        }
 
         $entityManager = $this->getDoctrine()->getManager();
-        $board = $entityManager
-            ->getRepository(Board::class)
+        $game = $entityManager
+            ->getRepository(Game::class)
             ->find($id);
 
         $action = $request->get('action');
-        if (!in_array($action, [Board::NORTH, Board::SOUTH, Board::EAST, Board::WEST])) {
+        if (!in_array($action, [Game::NORTH, Game::SOUTH, Game::EAST, Game::WEST])) {
             throw new BadRequestHttpException("Wrong action parameter");
         }
-        $this->gameService->tilt($board, $action);
+        $this->gameService->tilt($game, $action);
 
         $entityManager->flush();
 
-        return $this->redirectToRoute('game', ['id' => $board->getId()]);
+        return $this->redirectToRoute('game', ['id' => $game->getId()]);
     }
 
     protected function generatePlayerHash()
