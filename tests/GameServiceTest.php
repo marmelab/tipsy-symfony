@@ -167,7 +167,6 @@ class GameServiceTest extends TestCase
         $game = $gameService->newGame(hash('sha256', uniqid(), false));
         $this->assertEquals($game->getCellType(3, 3)[Game::COLOR_KEY], Game::BLACK);
         $currentPlayer = $game->getCurrentPlayer();
-        $opponent = $game->getCurrentOpponent();
         // WHEN
         $gameService->tilt($game, Game::NORTH);
         $gameService->tilt($game, Game::EAST);

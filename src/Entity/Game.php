@@ -329,9 +329,9 @@ class Game
 
     public function getCurrentOpponent(): string
     {
-        foreach (array_keys($this->players) as $player){
-            if (!$player['current']){
-                return $player[Game::COLOR_KEY];
+        foreach (array_keys($this->players) as $color) {
+            if (!$this->players[$color]['current']) {
+                return $color;
             }
         }
     }
