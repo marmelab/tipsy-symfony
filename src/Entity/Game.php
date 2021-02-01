@@ -395,4 +395,9 @@ class Game
             return $player['hash'] == $playerHash;
         }));
     }
+
+    public function itsMyTurn($playerHash)
+    {
+        return ($this->players[$this->getCurrentPlayer()]['hash'] == $playerHash);
+    }
 }

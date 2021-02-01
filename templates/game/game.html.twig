@@ -10,6 +10,7 @@
 
 {% set red="#DC143C" %}
 {% set blue="#6495ED" %}
+{% set playerHash=app.request.cookies.get('tipsy-game') %}
 <style>
     .cell{
         width: 40px;
@@ -176,10 +177,9 @@
 </style>
 <div class="title">Tipsy</div>
 <div class="game">
-
     {% if not game.isFull() %}
         <div>WAITING FOR PLAYER</div>
-        {{dump(game.players)}}
+        {{playerHash}}
     {% else %}
     <div class="player blue">
         <h1>BLUE</h1>
@@ -192,9 +192,9 @@
     </div>
     <form id="cellactions" method="POST" action={{(game.shouldReplacePucks())?"/game/#{game.getId()}/replacepuck":"/game/#{game.getId()}/tilt"}} class="middle-game">
 
-        <button name="action" type="submit" value="north" class="tilt top" {% if game.shouldReplacePucks() %}disabled{% endif %}>Tilt</button>
+        <button name="action" type="submit" value="north" class="tilt top" {% if game.shouldReplacePucks() or not game.itsMyTurn(playerHash) %}disabled{% endif %}>Tilt</button>
         <div class="game">
-            <button name="action" type="submit" value="west" class="tilt" {% if game.shouldReplacePucks() %}disabled{% endif %}>Tilt</button>
+            <button name="action" type="submit" value="west" class="tilt" {% if game.shouldReplacePucks() or not game.itsMyTurn(playerHash)%}disabled{% endif %}>Tilt</button>
             <div class="row">
             <div class="cell"><div id="cell00"></div></div>
             <div class="cell"><div id="cell01"></div></div>
@@ -258,11 +258,11 @@
             <div class="cell"><div id="cell65"></div></div>
             <div class="cell"><div id="cell66"></div></div>
             </div>
-            <button name="action" type="submit" value="east" class="tilt" {% if game.shouldReplacePucks() %}disabled{% endif %}>Tilt</button>
+            <button name="action" type="submit" value="east" class="tilt" {% if game.shouldReplacePucks() or not game.itsMyTurn(playerHash)%}disabled{% endif %}>Tilt</button>
         </div>
 
-        <button name="action" type="submit" value="south" class="tilt bottom" {% if game.shouldReplacePucks() %}disabled{% endif %}>Tilt</button>
-        {% if game.shouldReplacePucks() %}
+        <button name="action" type="submit" value="south" class="tilt bottom" {% if game.shouldReplacePucks() or not game.itsMyTurn(playerHash)%}disabled{% endif %}>Tilt</button>
+        {% if game.shouldReplacePucks() and game.itsMyTurn(playerHash)%}
         <button name="action" type="submit" value="replace" class="replace">Replace</button>
         {% endif %}
         {% if not game.shouldReplacePucks() %}
