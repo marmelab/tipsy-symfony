@@ -18,6 +18,7 @@ class GameController extends AbstractController
     public function __construct(GameService $gameService)
     {
         $this->gameService = $gameService;
+        $this->entityManager = $this->getDoctrine()->getManager();
     }
 
     public function new()
@@ -25,9 +26,9 @@ class GameController extends AbstractController
 
         $playerHash = $this->generatePlayerHash();
         $game = $this->gameService->newGame($playerHash);
-        $entityManager = $this->getDoctrine()->getManager();
-        $entityManager->persist($game);
-        $entityManager->flush();
+
+        $this->entityManager->persist($game);
+        $this->entityManager->flush();
 
         $response = $this->redirectToRoute('game', ['id' => $game->getId()]);
         $response->headers->setCookie(new Cookie($this::COOKIE_KEY, $playerHash));
@@ -64,18 +65,13 @@ class GameController extends AbstractController
 
     public function replacePuck(int $id, Request $request)
     {
-        // $playerHash = $request->cookies->get($this::COOKIE_KEY);
-        // if (!$playerHash) {
-        //     return $this->redirectToRoute('index');
-        // }
 
-        $entityManager = $this->getDoctrine()->getManager();
-        $game = $entityManager
+        $game = $this->entityManager
             ->getRepository(Game::class)
             ->find($id);
         $this->gameService->replacePuck($game);
 
-        $entityManager->flush();
+        $this->entityManager->flush();
 
         return $this->redirectToRoute('game', ['id' => $game->getId()]);
     }
@@ -83,8 +79,7 @@ class GameController extends AbstractController
     public function tilt(int $id, Request $request)
     {
 
-        $entityManager = $this->getDoctrine()->getManager();
-        $game = $entityManager
+        $game = $this->entityManager
             ->getRepository(Game::class)
             ->find($id);
 
@@ -94,7 +89,7 @@ class GameController extends AbstractController
         }
         $this->gameService->tilt($game, $action);
 
-        $entityManager->flush();
+        $this->entityManager->flush();
 
         return $this->redirectToRoute('game', ['id' => $game->getId()]);
     }
