@@ -1,6 +1,6 @@
 FROM php:8
 
-RUN apt-get update && apt-get upgrade
+RUN apt-get update -y && apt-get upgrade -y
 RUN apt-get install -y --no-install-recommends wget unzip\
     && wget https://get.symfony.com/cli/installer -O - | bash\
     && mv /root/.symfony/bin/symfony /usr/local/bin/symfony\
