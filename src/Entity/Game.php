@@ -51,6 +51,11 @@ class Game
     public $graph;
 
     /**
+     * @ORM\Column(type="array")
+     */
+    public $pucks =[];
+
+    /**
      * @ORM\Column(type="json")
      */
     private $fallenPucks = [Game::BLUE => 0, Game::RED => 0];
@@ -111,12 +116,17 @@ class Game
         }
     }
 
+    public function setPucks(array $pucks){
+        $this->pucks = $pucks;
+    }
+
     public function addPuck(mixed $coordinate, string $color, bool $flipped = false)
     {
-        $vertex = is_array($coordinate) ? $this->coordinateToString($coordinate) : $coordinate;
-        if (!empty($this->graph->vertices[$vertex])) {
-            $this->graph->vertices[$vertex]->setValue([Game::COLOR_KEY => $color, Game::FLIPPED_KEY => $flipped]);
+        $key = is_array($coordinate) ? $this->coordinateToString($coordinate) : $coordinate;
+        if (!empty($this->graph->vertices[$key])) {
+            $this->graph->vertices[$key]->setValue([Game::COLOR_KEY => $color, Game::FLIPPED_KEY => $flipped]);
         }
+        $this->pucks += [$key =>  new Puck($color, $key, $flipped)];
     }
     public function getHeight(): int
     {
@@ -249,6 +259,7 @@ class Game
         if (!empty($this->graph->vertices[$puckId])) {
             $this->graph->vertices[$puckId]->setValue();
         }
+        unset($this->pucks[$puckId]);
         return $value;
     }
 
