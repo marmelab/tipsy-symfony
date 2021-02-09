@@ -143,9 +143,9 @@ class Game
     {
         return $this->id;
     }
-    public function setCurrentPlayer(string $color, string $hash, string $name)
+    public function setCurrentPlayer(string $color, string $name)
     {
-        $this->players[$color] = ["hash" => $hash, "current" => true, "name" => $name];
+        $this->players[$color] = [ "current" => true, "name" => $name];
     }
     public function getCurrentPlayer(): string
     {
@@ -344,10 +344,13 @@ class Game
             }
         }
     }
-    public function setPlayers(array $players)
+    public function setPlayers(array $players){
+        $this->players = $players;
+    }
+    public function setEmptyPlayers(array $players)
     {
         foreach ($players as $player) {
-            $this->players[$player] = ["hash" => "", "current" => false];;
+            $this->players[$player] = ["name" => "", "current" => false];;
         }
     }
     private function switchPlayers()
@@ -385,32 +388,31 @@ class Game
     public function isFull(): bool
     {
         foreach (array_keys($this->players) as $color) {
-            if (!$this->players[$color]['hash']) {
+            if (!$this->players[$color]['name']) {
                 return false;
             }
         }
         return true;
     }
 
-    public function addPlayer(string $playerHash, string $playerName)
+    public function addPlayer(string $playerName)
     {
         foreach (array_keys($this->players) as $color) {
-            if (!$this->players[$color]['hash']) {
-                $this->players[$color]['hash'] = $playerHash;
+            if (!$this->players[$color]['name']) {
                 $this->players[$color]['name'] = $playerName;
             }
         }
     }
 
-    public function hasPlayer(string $playerHash): bool
+    public function hasPlayer(string $playerName): bool
     {
-        return !empty(array_filter($this->players, function ($player) use ($playerHash) {
-            return $player['hash'] == $playerHash;
+        return !empty(array_filter($this->players, function ($player) use ($playerName) {
+            return $player['name'] == $playerName;
         }));
     }
 
-    public function itsMyTurn($playerHash)
+    public function itsMyTurn($playerName)
     {
-        return ($this->players[$this->getCurrentPlayer()]['hash'] == $playerHash);
+        return ($this->players[$this->getCurrentPlayer()]['name'] == $playerName);
     }
 }

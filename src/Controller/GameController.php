@@ -28,14 +28,12 @@ class GameController extends AbstractController
     public function new(Request $request)
     {
         $playerName = $request->toArray()["playerName"];
-        $playerHash = $this->generatePlayerHash();
-        $game = $this->gameService->newGame($playerHash, $playerName);
+        $game = $this->gameService->newGame($playerName);
 
         $this->entityManager->persist($game);
         $this->entityManager->flush();
 
         $response = $this->json($game);
-        $response->headers->setCookie(new Cookie($this::COOKIE_KEY, $playerHash));
 
         return $response;
     }
@@ -43,14 +41,14 @@ class GameController extends AbstractController
     /**
      * @Route("/game/pending", name="getPending", methods={"GET"})
      */
-    public function getPendingingGames()
+    public function getPendingGames()
     {
         $games = $this->getDoctrine()
             ->getRepository(Game::class)
             ->findAll();
         $games = array_filter($games, function($game){
             foreach ($game->players as $player){
-                if (!$player["hash"]){
+                if (!$player["name"]){
                     return true;
                 }
             }
@@ -74,10 +72,8 @@ class GameController extends AbstractController
         if (empty($game)) {
             return $this->createNotFoundException();
         }
-        $playerHash = $request->cookies->get($this::COOKIE_KEY);
 
         $response = $this->json($game);
-        $response->headers->setCookie(new Cookie($this::COOKIE_KEY, $playerHash));
         return $response;
     }
 
@@ -94,17 +90,11 @@ class GameController extends AbstractController
         if (empty($game)) {
             return $this->createNotFoundException();
         }
-        if (empty($playerHash) || !$game->hasPlayer($playerHash)) {
-            if ($game->isFull()) {
-                return $this->createAccessDeniedException();
-            }
-            $playerName = $request->toArray()["playerName"];
-            $playerHash = $this->generatePlayerHash();
-            $game->addPlayer($playerHash, $playerName);
-            $this->getDoctrine()->getManager()->flush();
-        }
+        $playerName = $request->toArray()["playerName"];
+        $game->addPlayer($playerName);
+        $this->getDoctrine()->getManager()->flush();
+        
         $response = $this->json($game);
-        $response->headers->setCookie(new Cookie($this::COOKIE_KEY, $playerHash));
         return $response;
     }
 
@@ -139,8 +129,4 @@ class GameController extends AbstractController
         return $this->redirectToRoute('game', ['id' => $game->getId()]);
     }
 
-    protected function generatePlayerHash()
-    {
-        return hash('sha256', uniqid(), false);
-    }
 }
