@@ -11,7 +11,7 @@ class GameControllerTest extends WebTestCase
     {
 
         $client = static::createClient();
-        $client->xmlHttpRequest('POST', '/game', ['playerName' => 'Fabien']);
+        $client->xmlHttpRequest('GET', '/game/pending');
 
         $this->assertResponseIsSuccessful();
     }
