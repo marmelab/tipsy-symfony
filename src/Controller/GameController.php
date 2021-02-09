@@ -82,7 +82,7 @@ class GameController extends AbstractController
     }
 
     /**
-     * @Route("/game/{id}/join", name="new", methods={"POST"})
+     * @Route("/game/{id}/join", name="join", methods={"POST"})
      */
     public function joinGame(int $id, Request $request){
         if (empty($id)) {
@@ -107,6 +107,7 @@ class GameController extends AbstractController
         $response->headers->setCookie(new Cookie($this::COOKIE_KEY, $playerHash));
         return $response;
     }
+
     public function replacePuck(int $id, Request $request)
     {
 
