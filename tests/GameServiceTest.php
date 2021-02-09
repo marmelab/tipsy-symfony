@@ -10,7 +10,7 @@ class GameServiceTest extends TestCase
     {
         // GIVEN
         $gameService = new GameService();
-        $game = $gameService->newGame(hash('sha256', uniqid(), false));
+        $game = $gameService->newGame(hash('sha256', uniqid(), false),"bobby");
         $this->assertEquals($game->getCellType(3, 3)[Game::COLOR_KEY], Game::BLACK);
         // WHEN
         $gameService->tilt($game, Game::EAST);
@@ -25,7 +25,7 @@ class GameServiceTest extends TestCase
     {
         // GIVEN
         $gameService = new GameService();
-        $game = $gameService->newGame(hash('sha256', uniqid(), false));
+        $game = $gameService->newGame(hash('sha256', uniqid(), false),"bobby");
         $this->assertEquals($game->getCellType(3, 3)[Game::COLOR_KEY], Game::BLACK);
         // WHEN
         $gameService->tilt($game, Game::WEST);
@@ -40,7 +40,7 @@ class GameServiceTest extends TestCase
     {
         // GIVEN
         $gameService = new GameService();
-        $game = $gameService->newGame(hash('sha256', uniqid(), false));
+        $game = $gameService->newGame(hash('sha256', uniqid(), false),"bobby");
         $this->assertEquals($game->getCellType(3, 3)[Game::COLOR_KEY], Game::BLACK);
         // WHEN
         try {
@@ -60,7 +60,7 @@ class GameServiceTest extends TestCase
     {
         // GIVEN
         $gameService = new GameService();
-        $game = $gameService->newGame(hash('sha256', uniqid(), false));
+        $game = $gameService->newGame(hash('sha256', uniqid(), false),"bobby");
         $this->assertEquals($game->getCellType(3, 3)[Game::COLOR_KEY], Game::BLACK);
         // WHEN
         $gameService->tilt($game, Game::NORTH);
@@ -79,7 +79,7 @@ class GameServiceTest extends TestCase
     {
         // GIVEN
         $gameService = new GameService();
-        $game = $gameService->newGame(hash('sha256', uniqid(), false));
+        $game = $gameService->newGame(hash('sha256', uniqid(), false),"bobby");
 
         // THEN
         $this->assertNotNull($game->getCurrentPlayer());
@@ -91,7 +91,7 @@ class GameServiceTest extends TestCase
     {
         // GIVEN
         $gameService = new GameService();
-        $game = $gameService->newGame(hash('sha256', uniqid(), false));
+        $game = $gameService->newGame(hash('sha256', uniqid(), false),"bobby");
 
         // THEN
         $this->assertNotNull($game->getRemainingTurns());
@@ -102,7 +102,7 @@ class GameServiceTest extends TestCase
     {
         // GIVEN
         $gameService = new GameService();
-        $game = $gameService->newGame(hash('sha256', uniqid(), false));
+        $game = $gameService->newGame(hash('sha256', uniqid(), false),"bobby");
         $remainingTurns = $game->getRemainingTurns();
 
         // WHEN
@@ -116,7 +116,7 @@ class GameServiceTest extends TestCase
     {
         // GIVEN
         $gameService = new GameService();
-        $game = $gameService->newGame(hash('sha256', uniqid(), false));
+        $game = $gameService->newGame(hash('sha256', uniqid(), false),"bobby");
         $remainingTurns = $game->getRemainingTurns();
         $currentPlayer = $game->getCurrentPlayer();
 
@@ -134,7 +134,7 @@ class GameServiceTest extends TestCase
     {
         // GIVEN
         $gameService = new GameService();
-        $game = $gameService->newGame(hash('sha256', uniqid(), false));
+        $game = $gameService->newGame(hash('sha256', uniqid(), false),"bobby");
         $this->assertEquals($game->getCellType(3, 3)[Game::COLOR_KEY], Game::BLACK);
         // WHEN
         $gameService->tilt($game, Game::NORTH);
@@ -150,7 +150,7 @@ class GameServiceTest extends TestCase
     {
         // GIVEN
         $gameService = new GameService();
-        $game = $gameService->newGame(hash('sha256', uniqid(), false));
+        $game = $gameService->newGame(hash('sha256', uniqid(), false),"bobby");
         $this->assertEquals($game->getCellType(3, 3)[Game::COLOR_KEY], Game::BLACK);
         // WHEN
         $gameService->tilt($game, Game::NORTH);
@@ -164,7 +164,7 @@ class GameServiceTest extends TestCase
     {
         // GIVEN
         $gameService = new GameService();
-        $game = $gameService->newGame(hash('sha256', uniqid(), false));
+        $game = $gameService->newGame(hash('sha256', uniqid(), false),"bobby");
         $this->assertEquals($game->getCellType(3, 3)[Game::COLOR_KEY], Game::BLACK);
         $currentPlayer = $game->getCurrentPlayer();
         // WHEN
@@ -185,7 +185,7 @@ class GameServiceTest extends TestCase
     {
         // GIVEN
         $gameService = new GameService();
-        $game = $gameService->newGame(hash('sha256', uniqid(), false));
+        $game = $gameService->newGame(hash('sha256', uniqid(), false),"bobby");
         $this->assertEquals($game->getCellType(3, 3)[Game::COLOR_KEY], Game::BLACK);
         // WHEN
         $gameService->tilt($game, Game::NORTH);

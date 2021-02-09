@@ -9,9 +9,10 @@ class GameControllerTest extends WebTestCase
 {
     public function test_it_should_redirect_to_index_when_requesting_game_without_cookie()
     {
-        $client = static::createClient();
-        $crawler = $client->request('GET', '/game/');
 
-        $this->assertResponseRedirects();
+        $client = static::createClient();
+        $client->xmlHttpRequest('POST', '/game', ['playerName' => 'Fabien']);
+
+        $this->assertResponseIsSuccessful();
     }
 }

@@ -1,7 +1,7 @@
 FROM php:8
 
 RUN apt-get update -y && apt-get upgrade -y
-RUN apt-get install -y --no-install-recommends wget unzip\
+RUN apt-get install -y --no-install-recommends wget unzip git\
     && wget https://get.symfony.com/cli/installer -O - | bash\
     && mv /root/.symfony/bin/symfony /usr/local/bin/symfony\
     && apt-get purge -y --auto-remove -o APT::AutoRemove::RecommendsImportant=false

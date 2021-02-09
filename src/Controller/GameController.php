@@ -6,6 +6,7 @@ use App\Entity\Game;
 use App\Services\GameService;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\HttpFoundation\Cookie;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
@@ -15,22 +16,25 @@ class GameController extends AbstractController
     const COOKIE_KEY = 'tipsy-game';
     private $gameService;
 
-    public function __construct(GameService $gameService)
+    public function __construct(GameService $gameService, EntityManagerInterface $entityManager)
     {
         $this->gameService = $gameService;
-        $this->entityManager = $this->getDoctrine()->getManager();
+        $this->entityManager = $entityManager;
     }
 
-    public function new()
+    /**
+     * @Route("/game", name="new", methods={"POST"})
+     */
+    public function new(Request $request)
     {
-
+        $playerName = $request->toArray()["playerName"];
         $playerHash = $this->generatePlayerHash();
-        $game = $this->gameService->newGame($playerHash);
+        $game = $this->gameService->newGame($playerHash, $playerName);
 
         $this->entityManager->persist($game);
         $this->entityManager->flush();
 
-        $response = $this->redirectToRoute('game', ['id' => $game->getId()]);
+        $response = $this->json($game);
         $response->headers->setCookie(new Cookie($this::COOKIE_KEY, $playerHash));
 
         return $response;
@@ -56,9 +60,8 @@ class GameController extends AbstractController
             $game->addPlayer($playerHash);
             $this->getDoctrine()->getManager()->flush();
         }
-        $response = $this->render('game/game.html.twig', [
-            'game' => $game
-        ]);
+
+        $response = $this->json($game);
         $response->headers->setCookie(new Cookie($this::COOKIE_KEY, $playerHash));
         return $response;
     }

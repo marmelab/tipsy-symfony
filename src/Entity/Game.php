@@ -142,9 +142,9 @@ class Game
     {
         return $this->id;
     }
-    public function setCurrentPlayer(string $color, string $hash)
+    public function setCurrentPlayer(string $color, string $hash, string $name)
     {
-        $this->players[$color] = ["hash" => $hash, "current" => true];
+        $this->players[$color] = ["hash" => $hash, "current" => true, "name" => $name];
     }
     public function getCurrentPlayer(): string
     {
