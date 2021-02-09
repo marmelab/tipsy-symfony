@@ -8,8 +8,3 @@ tilt:
    path: /game/{id}/tilt
    methods: POST
    controller: App\Controller\GameController::tilt
-
-game:
-   path: /game/{id}
-   methods: GET
-   controller: App\Controller\GameController::show

@@ -40,6 +40,29 @@ class GameController extends AbstractController
         return $response;
     }
 
+    /**
+     * @Route("/game/pending", name="getPending", methods={"GET"})
+     */
+    public function getPendingingGames()
+    {
+        $games = $this->getDoctrine()
+            ->getRepository(Game::class)
+            ->findAll();
+        $games = array_filter($games, function($game){
+            foreach ($game->players as $player){
+                if (!$player["hash"]){
+                    return true;
+                }
+            }
+        });
+
+        $response = $this->json($games);
+        return $response;
+    }
+
+    /**
+     * @Route("/game/{id}", name="get", methods={"GET"})
+     */
     public function show(int $id, Request $request)
     {
         if (empty($id)) {
@@ -65,7 +88,6 @@ class GameController extends AbstractController
         $response->headers->setCookie(new Cookie($this::COOKIE_KEY, $playerHash));
         return $response;
     }
-
     public function replacePuck(int $id, Request $request)
     {
 

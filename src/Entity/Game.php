@@ -28,7 +28,7 @@ class Game
      * @ORM\GeneratedValue()
      * @ORM\Column(type="integer")
      */
-    private $id;
+    public $id;
 
     /**
      * @ORM\Column(type="integer")
@@ -58,17 +58,17 @@ class Game
     /**
      * @ORM\Column(type="json")
      */
-    private $fallenPucks = [Game::BLUE => 0, Game::RED => 0];
+    public $fallenPucks = [Game::BLUE => 0, Game::RED => 0];
 
     /**
      * @ORM\Column(type="json")
      */
-    private $scores = [Game::BLUE => 0, Game::RED => 0];
+    public $scores = [Game::BLUE => 0, Game::RED => 0];
 
     /**
      * @ORM\Column(type="integer")
      */
-    private $remainingTurns;
+    public $remainingTurns;
 
     public function __construct(?int $width, ?int $height)
     {
