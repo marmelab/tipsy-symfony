@@ -3,10 +3,13 @@
 namespace App\Entity;
 
 use GraphDS\Graph\DirectedGraph;
-use Doctrine\ORM\Mapping as ORM;
 use GraphDS\Vertex\DirectedVertex;
+use Doctrine\ORM\Mapping as ORM;
 
-class Board
+/**
+ * @ORM\Entity(repositoryClass="App\Repository\BoardRepository")
+ */
+class Game
 {
     const COLOR_KEY = "color";
     const FLIPPED_KEY = "flipped";
@@ -20,18 +23,54 @@ class Board
     const BLACK = "black";
     const EXIT = "exit";
 
-    private $id;
+    /**
+     * @ORM\Id()
+     * @ORM\GeneratedValue()
+     * @ORM\Column(type="integer")
+     */
+    public $id;
 
+    /**
+     * @ORM\Column(type="integer")
+     */
     private $width = 7;
 
+    /**
+     * @ORM\Column(type="integer")
+     */
     private $height = 7;
 
+    /**
+     * @ORM\Column(type="array")
+     */
+    public $players;
+
+    /**
+     * @ORM\Column(type="object")
+     */
     public $graph;
 
-    private $fallenPucks = [Board::BLUE => 0, Board::RED => 0];
-    private $scores = [Board::BLUE => 0, Board::RED => 0];
+    /**
+     * @ORM\Column(type="array")
+     */
+    public $pucks = [];
 
-    public function __construct(int $width, int $height)
+    /**
+     * @ORM\Column(type="json")
+     */
+    public $fallenPucks = [Game::BLUE => 0, Game::RED => 0];
+
+    /**
+     * @ORM\Column(type="json")
+     */
+    public $scores = [Game::BLUE => 0, Game::RED => 0];
+
+    /**
+     * @ORM\Column(type="integer")
+     */
+    public $remainingTurns;
+
+    public function __construct(?int $width, ?int $height)
     {
         $this->width = $width;
         $this->height = $height;
@@ -54,19 +93,19 @@ class Board
     {
         list($x, $y) = $exit;
         $this->graph->addVertex($this->coordinateToString($exit));
-        $this->graph->vertices[$this->coordinateToString($exit)]->setValue([Board::EXIT => True]);
+        $this->graph->vertices[$this->coordinateToString($exit)]->setValue([Game::EXIT => True]);
 
         if ($x == -1) {
-            $this->addEdge(array(0, $y), $exit, Board::WEST);
+            $this->addEdge(array(0, $y), $exit, Game::WEST);
         }
         if ($x == $this->width) {
-            $this->addEdge(array($x - 1, $y), $exit, Board::EAST);
+            $this->addEdge(array($x - 1, $y), $exit, Game::EAST);
         }
         if ($y == $this->height) {
-            $this->addEdge(array($x, $y - 1), $exit, Board::SOUTH);
+            $this->addEdge(array($x, $y - 1), $exit, Game::SOUTH);
         }
         if ($y == -1) {
-            $this->addEdge(array($x, 0), $exit, Board::NORTH);
+            $this->addEdge(array($x, 0), $exit, Game::NORTH);
         }
     }
 
@@ -77,12 +116,18 @@ class Board
         }
     }
 
+    public function setPucks(array $pucks)
+    {
+        $this->pucks = $pucks;
+    }
+
     public function addPuck(mixed $coordinate, string $color, bool $flipped = false)
     {
-        $vertex = is_array($coordinate) ? $this->coordinateToString($coordinate) : $coordinate;
-        if (!empty($this->graph->vertices[$vertex])) {
-            $this->graph->vertices[$vertex]->setValue([Board::COLOR_KEY => $color, Board::FLIPPED_KEY => $flipped]);
+        $key = is_array($coordinate) ? $this->coordinateToString($coordinate) : $coordinate;
+        if (!empty($this->graph->vertices[$key])) {
+            $this->graph->vertices[$key]->setValue([Game::COLOR_KEY => $color, Game::FLIPPED_KEY => $flipped]);
         }
+        $this->pucks += [$key =>  new Puck($color, $key, $flipped)];
     }
     public function getHeight(): int
     {
@@ -98,13 +143,17 @@ class Board
     {
         return $this->id;
     }
-    public function setCurrentPlayer(string $player)
+    public function setCurrentPlayer(string $color, string $hash, string $name)
     {
-        $this->players[$player] = true;
+        $this->players[$color] = ["hash" => $hash, "current" => true, "name" => $name];
     }
     public function getCurrentPlayer(): string
     {
-        return array_search(true, $this->players);
+        foreach (array_keys($this->players) as $color) {
+            if ($this->players[$color]['current']) {
+                return $color;
+            }
+        }
     }
 
     public function setRemainingTurns(int $turns)
@@ -121,7 +170,7 @@ class Board
     {
         $coordinate = array($x, $y);
         if (empty($this->graph->vertices[$this->coordinateToString($coordinate)])) {
-            return Board::OBSTACLE;
+            return Game::OBSTACLE;
         }
         return $this->graph->vertices[$this->coordinateToString($coordinate)]->getValue();
     }
@@ -139,17 +188,17 @@ class Board
     {
         return array_filter($this->graph->vertices, function ($vertex) {
 
-            return $vertex->getValue() && array_key_exists(Board::COLOR_KEY, $vertex->getValue());
+            return $vertex->getValue() && array_key_exists(Game::COLOR_KEY, $vertex->getValue());
         });
     }
     public function getPucksIdsBy(string $color, ?bool $flipped): array
     {
         $pucks = array_filter($this->graph->vertices, function ($vertex) use ($color, $flipped) {
             return $vertex->getValue()
-                && array_key_exists(Board::COLOR_KEY, $vertex->getValue())
-                && $vertex->getValue()[Board::COLOR_KEY] == $color
-                && array_key_exists(Board::FLIPPED_KEY, $vertex->getValue())
-                && $vertex->getValue()[Board::FLIPPED_KEY] == $flipped;
+                && array_key_exists(Game::COLOR_KEY, $vertex->getValue())
+                && $vertex->getValue()[Game::COLOR_KEY] == $color
+                && array_key_exists(Game::FLIPPED_KEY, $vertex->getValue())
+                && $vertex->getValue()[Game::FLIPPED_KEY] == $flipped;
         });
         $graph = $this->graph;
         return array_map(function ($puck) use ($graph) {
@@ -181,7 +230,7 @@ class Board
 
     private function isCellAPuck(?DirectedVertex $vertex): bool
     {
-        return $vertex && $vertex->getValue() && array_key_exists(Board::COLOR_KEY, $vertex->getValue());
+        return $vertex && $vertex->getValue() && array_key_exists(Game::COLOR_KEY, $vertex->getValue());
     }
 
     private function nextFreeCell(DirectedVertex $puck, string $direction): ?DirectedVertex
@@ -211,6 +260,7 @@ class Board
         if (!empty($this->graph->vertices[$puckId])) {
             $this->graph->vertices[$puckId]->setValue();
         }
+        unset($this->pucks[$puckId]);
         return $value;
     }
 
@@ -241,6 +291,8 @@ class Board
             $this->remainingTurns = 2;
             $this->switchPlayers();
         }
+
+        $this->graph = clone $this->graph;
     }
 
     public function getScore(string $player): int
@@ -259,17 +311,17 @@ class Board
 
         if (
             $nextFreeCell->getValue()
-            && $nextFreeCell->getValue()[Board::EXIT]
-            && $puckValue[Board::COLOR_KEY] != Board::BLACK
+            && $nextFreeCell->getValue()[Game::EXIT]
+            && $puckValue[Game::COLOR_KEY] != Game::BLACK
         ) {
-            if (!$puckValue[Board::FLIPPED_KEY]) {
-                $this->scores[$puckValue[Board::COLOR_KEY]]++;
+            if (!$puckValue[Game::FLIPPED_KEY]) {
+                $this->scores[$puckValue[Game::COLOR_KEY]]++;
             }
-            $this->fallenPucks[$puckValue[Board::COLOR_KEY]]++;
+            $this->fallenPucks[$puckValue[Game::COLOR_KEY]]++;
             return;
         }
 
-        $this->addPuck(array_search($nextFreeCell, $this->graph->vertices), $puckValue[Board::COLOR_KEY], $puckValue[Board::FLIPPED_KEY]);
+        $this->addPuck(array_search($nextFreeCell, $this->graph->vertices), $puckValue[Game::COLOR_KEY], $puckValue[Game::FLIPPED_KEY]);
     }
 
     public function shouldReplacePucks(): bool
@@ -279,25 +331,29 @@ class Board
 
     public function getFallenPucksCount(): int
     {
-        $blueFallenPuck = $this->getFallenPucks(Board::BLUE);
-        $redFallenPuck = $this->getFallenPucks(Board::RED);
+        $blueFallenPuck = $this->getFallenPucks(Game::BLUE);
+        $redFallenPuck = $this->getFallenPucks(Game::RED);
         return $redFallenPuck + $blueFallenPuck;
     }
 
     public function getCurrentOpponent(): string
     {
-        return array_search(false, $this->players);
+        foreach (array_keys($this->players) as $color) {
+            if (!$this->players[$color]['current']) {
+                return $color;
+            }
+        }
     }
     public function setPlayers(array $players)
     {
         foreach ($players as $player) {
-            $this->players[$player] = false;
+            $this->players[$player] = ["hash" => "", "current" => false];;
         }
     }
     private function switchPlayers()
     {
-        foreach (array_keys($this->players) as $player) {
-            $this->players[$player] = !$this->players[$player];
+        foreach (array_keys($this->players) as $color) {
+            $this->players[$color]['current'] = !$this->players[$color]['current'];
         }
     }
 
@@ -322,5 +378,39 @@ class Board
             $this->remainingTurns = 2;
             $this->switchPlayers();
         }
+
+        $this->graph = clone $this->graph;
+    }
+
+    public function isFull(): bool
+    {
+        foreach (array_keys($this->players) as $color) {
+            if (!$this->players[$color]['hash']) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    public function addPlayer(string $playerHash, string $playerName)
+    {
+        foreach (array_keys($this->players) as $color) {
+            if (!$this->players[$color]['hash']) {
+                $this->players[$color]['hash'] = $playerHash;
+                $this->players[$color]['name'] = $playerName;
+            }
+        }
+    }
+
+    public function hasPlayer(string $playerHash): bool
+    {
+        return !empty(array_filter($this->players, function ($player) use ($playerHash) {
+            return $player['hash'] == $playerHash;
+        }));
+    }
+
+    public function itsMyTurn($playerHash)
+    {
+        return ($this->players[$this->getCurrentPlayer()]['hash'] == $playerHash);
     }
 }

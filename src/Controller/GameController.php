@@ -2,79 +2,140 @@
 
 namespace App\Controller;
 
-use App\Entity\Board;
+use App\Entity\Game;
 use App\Services\GameService;
-use Psr\Log\LoggerInterface;
+use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\HttpFoundation\Cookie;
 use Symfony\Component\HttpFoundation\Request;
-use Symfony\Component\HttpFoundation\Session\SessionInterface;
 use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 
 class GameController extends AbstractController
 {
     const COOKIE_KEY = 'tipsy-game';
     private $gameService;
-    private $session;
 
-    public function __construct(GameService $gameService, SessionInterface $session, LoggerInterface $logger)
+    public function __construct(GameService $gameService, EntityManagerInterface $entityManager)
     {
         $this->gameService = $gameService;
-        $this->session = $session;
+        $this->entityManager = $entityManager;
     }
 
-    public function new()
+    /**
+     * @Route("/game", name="new", methods={"POST"})
+     */
+    public function new(Request $request)
     {
-        $game = $this->gameService->newGame();
+        $playerName = $request->toArray()["playerName"];
         $playerHash = $this->generatePlayerHash();
-        $response = $this->redirectToRoute('game');
+        $game = $this->gameService->newGame($playerHash, $playerName);
+
+        $this->entityManager->persist($game);
+        $this->entityManager->flush();
+
+        $response = $this->json($game);
         $response->headers->setCookie(new Cookie($this::COOKIE_KEY, $playerHash));
-        $this->session->set($playerHash, $game);
 
         return $response;
     }
 
-    public function show(Request $request)
+    /**
+     * @Route("/game/pending", name="getPending", methods={"GET"})
+     */
+    public function getPendingingGames()
     {
-        $playerHash = $request->cookies->get($this::COOKIE_KEY);
-        if (!$playerHash || !$this->session->get($playerHash)) {
-            return $this->redirectToRoute('index');
-        }
-        $board = $this->session->get($playerHash);
+        $games = $this->getDoctrine()
+            ->getRepository(Game::class)
+            ->findAll();
+        $games = array_filter($games, function($game){
+            foreach ($game->players as $player){
+                if (!$player["hash"]){
+                    return true;
+                }
+            }
+        });
 
-        return $this->render('game/game.html.twig', [
-            'board' => $board
-        ]);
+        $response = $this->json($games);
+        return $response;
     }
 
-    public function replacePuck(Request $request){
-        $playerHash = $request->cookies->get($this::COOKIE_KEY);
-        if (!$playerHash || !$this->session->get($playerHash)) {
-            return $this->redirectToRoute('index');
+    /**
+     * @Route("/game/{id}", name="get", methods={"GET"})
+     */
+    public function show(int $id, Request $request)
+    {
+        if (empty($id)) {
+            return $this->createNotFoundException();
         }
-        $board = $this->session->get($playerHash);
-        $this->gameService->replacePuck($board);
+        $game = $this->getDoctrine()
+            ->getRepository(Game::class)
+            ->find($id);
+        if (empty($game)) {
+            return $this->createNotFoundException();
+        }
+        $playerHash = $request->cookies->get($this::COOKIE_KEY);
 
-        return $this->redirectToRoute('game');
+        $response = $this->json($game);
+        $response->headers->setCookie(new Cookie($this::COOKIE_KEY, $playerHash));
+        return $response;
     }
 
-    public function tilt(Request $request)
-    {
-        $playerHash = $request->cookies->get($this::COOKIE_KEY);
-        if (!$playerHash || !$this->session->get($playerHash)) {
-            return $this->redirectToRoute('index');
+    /**
+     * @Route("/game/{id}/join", name="new", methods={"POST"})
+     */
+    public function joinGame(int $id, Request $request){
+        if (empty($id)) {
+            return $this->createNotFoundException();
         }
+        $game = $this->getDoctrine()
+            ->getRepository(Game::class)
+            ->find($id);
+        if (empty($game)) {
+            return $this->createNotFoundException();
+        }
+        if (empty($playerHash) || !$game->hasPlayer($playerHash)) {
+            if ($game->isFull()) {
+                return $this->createAccessDeniedException();
+            }
+            $playerName = $request->toArray()["playerName"];
+            $playerHash = $this->generatePlayerHash();
+            $game->addPlayer($playerHash, $playerName);
+            $this->getDoctrine()->getManager()->flush();
+        }
+        $response = $this->json($game);
+        $response->headers->setCookie(new Cookie($this::COOKIE_KEY, $playerHash));
+        return $response;
+    }
+    public function replacePuck(int $id, Request $request)
+    {
 
-        $board = $this->session->get($playerHash);
+        $game = $this->entityManager
+            ->getRepository(Game::class)
+            ->find($id);
+        $this->gameService->replacePuck($game);
+
+        $this->entityManager->flush();
+
+        return $this->redirectToRoute('game', ['id' => $game->getId()]);
+    }
+
+    public function tilt(int $id, Request $request)
+    {
+
+        $game = $this->entityManager
+            ->getRepository(Game::class)
+            ->find($id);
 
         $action = $request->get('action');
-        if (!in_array($action, [Board::NORTH, Board::SOUTH, Board::EAST, Board::WEST])) {
+        if (!in_array($action, [Game::NORTH, Game::SOUTH, Game::EAST, Game::WEST])) {
             throw new BadRequestHttpException("Wrong action parameter");
         }
-        $this->gameService->tilt($board, $action);
-        $this->session->set($playerHash, $board);
+        $this->gameService->tilt($game, $action);
 
-        return $this->redirectToRoute('game');
+        $this->entityManager->flush();
+
+        return $this->redirectToRoute('game', ['id' => $game->getId()]);
     }
 
     protected function generatePlayerHash()

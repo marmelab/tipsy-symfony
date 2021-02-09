@@ -2,7 +2,7 @@
 
 namespace App\Services;
 
-use App\Entity\Board;
+use App\Entity\Game;
 use App\Repository\BoardRepository;
 use Doctrine\ORM\EntityManagerInterface;
 
@@ -23,88 +23,88 @@ class GameService
     );
     private $black_puck = array(3, 3);
     private $exits = array(array(1, -1), array(7, 1), array(-1, 5), array(5, 7));
-    private $players = array(Board::RED, Board::BLUE);
+    private $players = array(Game::RED, Game::BLUE);
 
-    public function newGame(): Board
+    public function newGame(string $playerHash, string $playerName): Game
     {
-        $board = new Board(7, 7);
-        $this->initEmptyBoard($board);
-        $this->initObstacles($board);
-        $this->initPucks($board);
-        $this->initExits($board);
-        $this->initPlayers($board);
-        return $board;
+        $game = new Game(7, 7);
+        $this->initEmptyBoard($game);
+        $this->initObstacles($game);
+        $this->initPucks($game);
+        $this->initExits($game);
+        $this->initPlayers($game, $playerHash, $playerName);
+        return $game;
     }
 
-    private function initPlayers(Board $board)
+    private function initPlayers(Game $game, string $playerHash, string $name)
     {
         $firstPlayer = $this->players[rand(0, 1)];
-        $board->setPlayers($this->players);
-        $board->setCurrentPlayer($firstPlayer);
-        $board->setRemainingTurns(2);
+        $game->setPlayers($this->players);
+        $game->setCurrentPlayer($firstPlayer, $playerHash, $name);
+        $game->setRemainingTurns(2);
     }
-    private function initExits(Board $board)
+    private function initExits(Game $game)
     {
         foreach ($this->exits as $exit) {
-            $board->addExit($exit);
+            $game->addExit($exit);
         }
     }
 
-    private function initPucks(Board $board)
+    private function initPucks(Game $game)
     {
         foreach ($this->red_pucks as $red_puck) {
-            $board->addPuck($red_puck, Board::RED);
+            $game->addPuck($red_puck, Game::RED);
         }
         foreach ($this->blue_pucks as $blue_puck) {
-            $board->addPuck($blue_puck, Board::BLUE);
+            $game->addPuck($blue_puck, Game::BLUE);
         }
-        $board->addPuck($this->black_puck, Board::BLACK);
+        $game->addPuck($this->black_puck, Game::BLACK);
     }
 
-    public function replacePuck(Board $board)
+    public function replacePuck(Game $game)
     {
-        $opponent = $board->getCurrentOpponent();
-        $opponentPucks = $board->getFallenPucks($opponent);
+        $opponent = $game->getCurrentOpponent();
+        $opponentPucks = $game->getFallenPucks($opponent);
 
-        $player = $board->getCurrentPlayer();
-        $currentPlayerPucks = $board->getFallenPucks($player);
+        $player = $game->getCurrentPlayer();
+        $currentPlayerPucks = $game->getFallenPucks($player);
 
         if ($opponentPucks > 0) {
             $player = $opponent;
         }
-        $board->decrementFallenPucks($player);
-        $board->replacePuck($player);
+        $game->decrementFallenPucks($player);
+        $game->replacePuck($player);
     }
 
-    private function initEmptyBoard(Board $board)
+    private function initEmptyBoard(Game $game)
     {
-        foreach (range(0, $board->getWidth() - 1) as $x) {
-            foreach (range(0, $board->getHeight() - 1) as $y) {
+        foreach (range(0, $game->getWidth() - 1) as $x) {
+            foreach (range(0, $game->getHeight() - 1) as $y) {
                 if ($x > 0) {
-                    $board->addEdge(array($x, $y), array($x - 1, $y), Board::WEST);
+                    $game->addEdge(array($x, $y), array($x - 1, $y), Game::WEST);
                 }
-                if ($x < $board->getWidth() - 1) {
-                    $board->addEdge(array($x, $y), array($x + 1, $y), Board::EAST);
+                if ($x < $game->getWidth() - 1) {
+                    $game->addEdge(array($x, $y), array($x + 1, $y), Game::EAST);
                 }
                 if ($y > 0) {
-                    $board->addEdge(array($x, $y), array($x, $y - 1), Board::NORTH);
+                    $game->addEdge(array($x, $y), array($x, $y - 1), Game::NORTH);
                 }
-                if ($y < $board->getHeight() - 1) {
-                    $board->addEdge(array($x, $y), array($x, $y + 1), Board::SOUTH);
+                if ($y < $game->getHeight() - 1) {
+                    $game->addEdge(array($x, $y), array($x, $y + 1), Game::SOUTH);
                 }
             }
         }
     }
 
-    private function initObstacles(Board $board)
+    private function initObstacles(Game $game)
     {
         foreach ($this->obstacles as $obstacle) {
-            $board->addObstacle($obstacle);
+            $game->addObstacle($obstacle);
         }
     }
 
-    public function tilt(Board $board, String $direction)
+    public function tilt(Game $game, String $direction)
     {
-        $board->tilt($direction);
+        $game->tilt($direction);
     }
 }

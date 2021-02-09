@@ -10,6 +10,7 @@
 
 {% set red="#DC143C" %}
 {% set blue="#6495ED" %}
+{% set playerHash=app.request.cookies.get('tipsy-game') %}
 <style>
     .cell{
         width: 40px;
@@ -30,12 +31,12 @@
     .obstacle{
         background-color: black
     }
-    .board{
+    .game{
         display: flex;
         align-items: center;
         justify-content: center;
     }
-    .middle-board {
+    .middle-game {
         display: flex;
         flex-direction: column;
     }
@@ -64,7 +65,7 @@
         flex: 1;
         align-self: stretch;
         font-family : inherit;
-        background-color:{{(board.getCurrentPlayer()=='red') ? red:blue}};
+        background-color:{{(game.getCurrentPlayer()=='red') ? red:blue}};
     }
     .tilt:hover{
         opacity: 0.50;
@@ -85,7 +86,7 @@
         font-size: 30px;
         flex: 1;
         align-self: stretch;
-        background-color:{{(board.getCurrentPlayer()=='red') ? red:blue}};
+        background-color:{{(game.getCurrentPlayer()=='red') ? red:blue}};
     }
     .title {
         font-size: 100px;
@@ -120,7 +121,7 @@
         background-color: {{red}};
     }
 
-    {% for red_puck in board.getPucksIdsBy('red', false) %}
+    {% for red_puck in game.getPucksIdsBy('red', false) %}
 
     #cell{{red_puck}}{
         width: 40px;
@@ -130,7 +131,7 @@
     }
 
     {% endfor %}
-    {% for flipped_red_puck in board.getPucksIdsBy('red', true) %}
+    {% for flipped_red_puck in game.getPucksIdsBy('red', true) %}
 
     #cell{{flipped_red_puck}}{
         width: 28px;
@@ -141,7 +142,7 @@
     }
 
     {% endfor %}
-    {% for blue_puck in board.getPucksIdsBy('blue', false) %}
+    {% for blue_puck in game.getPucksIdsBy('blue', false) %}
 
     #cell{{blue_puck}}{
         width: 40px;
@@ -152,7 +153,7 @@
 
     {% endfor %}
 
-    {% for flipped_blue_puck in board.getPucksIdsBy('blue', true) %}
+    {% for flipped_blue_puck in game.getPucksIdsBy('blue', true) %}
 
     #cell{{flipped_blue_puck}}{
         width: 28px;
@@ -163,7 +164,7 @@
     }
 
     {% endfor %}
-    {% for black_puck in board.getPucksIdsBy('black', false) %}
+    {% for black_puck in game.getPucksIdsBy('black', false) %}
 
     #cell{{black_puck}}{
         width: 40px;
@@ -176,20 +177,24 @@
 </style>
 <div class="title">Tipsy</div>
 <div class="game">
+    {% if not game.isFull() %}
+        <div>WAITING FOR PLAYER</div>
+        {{playerHash}}
+    {% else %}
     <div class="player blue">
         <h1>BLUE</h1>
-        <h2>{{board.getScore('blue')}}</h2>
-        {% for i in range(0, board.getFallenPucks('blue')) %}
+        <h2>{{game.getScore('blue')}}</h2>
+        {% for i in range(0, game.getFallenPucks('blue')) %}
             {% if i != 0 %}
                 <div class="blue_puck"></div>
             {% endif %}
         {% endfor %}
     </div>
-    <form id="cellactions" method="POST" action={{(board.shouldReplacePucks())?"game/replacepuck":"/game/tilt"}} class="middle-board">
+    <form id="cellactions" method="POST" action={{(game.shouldReplacePucks())?"/game/#{game.getId()}/replacepuck":"/game/#{game.getId()}/tilt"}} class="middle-game">
 
-        <button name="action" type="submit" value="north" class="tilt top" {% if board.shouldReplacePucks() %}disabled{% endif %}>Tilt</button>
-        <div class="board">
-            <button name="action" type="submit" value="west" class="tilt" {% if board.shouldReplacePucks() %}disabled{% endif %}>Tilt</button>
+        <button name="action" type="submit" value="north" class="tilt top" {% if game.shouldReplacePucks() or not game.itsMyTurn(playerHash) %}disabled{% endif %}>Tilt</button>
+        <div class="game">
+            <button name="action" type="submit" value="west" class="tilt" {% if game.shouldReplacePucks() or not game.itsMyTurn(playerHash)%}disabled{% endif %}>Tilt</button>
             <div class="row">
             <div class="cell"><div id="cell00"></div></div>
             <div class="cell"><div id="cell01"></div></div>
@@ -253,28 +258,29 @@
             <div class="cell"><div id="cell65"></div></div>
             <div class="cell"><div id="cell66"></div></div>
             </div>
-            <button name="action" type="submit" value="east" class="tilt" {% if board.shouldReplacePucks() %}disabled{% endif %}>Tilt</button>
+            <button name="action" type="submit" value="east" class="tilt" {% if game.shouldReplacePucks() or not game.itsMyTurn(playerHash)%}disabled{% endif %}>Tilt</button>
         </div>
 
-        <button name="action" type="submit" value="south" class="tilt bottom" {% if board.shouldReplacePucks() %}disabled{% endif %}>Tilt</button>
-        {% if board.shouldReplacePucks() %}
+        <button name="action" type="submit" value="south" class="tilt bottom" {% if game.shouldReplacePucks() or not game.itsMyTurn(playerHash)%}disabled{% endif %}>Tilt</button>
+        {% if game.shouldReplacePucks() and game.itsMyTurn(playerHash)%}
         <button name="action" type="submit" value="replace" class="replace">Replace</button>
         {% endif %}
-        {% if not board.shouldReplacePucks() %}
+        {% if not game.shouldReplacePucks() %}
         <div class="remaining">
-            {{board.getRemainingTurns()}}
+            {{game.getRemainingTurns()}}
         </div>
         {% endif %}
     </form>
     <div class="player red">
         <h1>RED</h1>
-        <h2>{{board.getScore('red')}}</h2>
-        {% for i in range(0, board.getFallenPucks('red')) %}
+        <h2>{{game.getScore('red')}}</h2>
+        {% for i in range(0, game.getFallenPucks('red')) %}
             {% if i != 0 %}
                 <div class="red_puck"></div>
             {% endif %}
         {% endfor %}
     </div>
+    {% endif %}
 </div>
 
 {% endblock %}

@@ -1,17 +1,10 @@
-index:
-   path: /
-   controller: App\Controller\GameController::new
-game:
-   path: /game
-   methods: GET
-   controller: App\Controller\GameController::show
 
 replace:
-   path: /game/replacepuck
+   path: /game/{id}/replacepuck
    methods: POST
    controller: App\Controller\GameController::replacePuck
 
 tilt:
-   path: /game/tilt
+   path: /game/{id}/tilt
    methods: POST
    controller: App\Controller\GameController::tilt
