@@ -54,7 +54,7 @@ class GameController extends AbstractController
             }
         });
 
-        $response = $this->json($games);
+        $response = $this->json(array_values($games));
         return $response;
     }
 
