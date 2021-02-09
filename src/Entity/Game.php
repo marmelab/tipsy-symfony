@@ -53,7 +53,7 @@ class Game
     /**
      * @ORM\Column(type="array")
      */
-    public $pucks =[];
+    public $pucks = [];
 
     /**
      * @ORM\Column(type="json")
@@ -116,7 +116,8 @@ class Game
         }
     }
 
-    public function setPucks(array $pucks){
+    public function setPucks(array $pucks)
+    {
         $this->pucks = $pucks;
     }
 
@@ -391,11 +392,12 @@ class Game
         return true;
     }
 
-    public function addPlayer(string $playerHash)
+    public function addPlayer(string $playerHash, string $playerName)
     {
         foreach (array_keys($this->players) as $color) {
             if (!$this->players[$color]['hash']) {
                 $this->players[$color]['hash'] = $playerHash;
+                $this->players[$color]['name'] = $playerName;
             }
         }
     }

@@ -66,24 +66,43 @@ class GameController extends AbstractController
     public function show(int $id, Request $request)
     {
         if (empty($id)) {
-            return $this->redirectToRoute('index');
+            return $this->createNotFoundException();
         }
         $game = $this->getDoctrine()
             ->getRepository(Game::class)
             ->find($id);
         if (empty($game)) {
-            return $this->redirectToRoute('index');
+            return $this->createNotFoundException();
         }
         $playerHash = $request->cookies->get($this::COOKIE_KEY);
+
+        $response = $this->json($game);
+        $response->headers->setCookie(new Cookie($this::COOKIE_KEY, $playerHash));
+        return $response;
+    }
+
+    /**
+     * @Route("/game/{id}/join", name="new", methods={"POST"})
+     */
+    public function joinGame(int $id, Request $request){
+        if (empty($id)) {
+            return $this->createNotFoundException();
+        }
+        $game = $this->getDoctrine()
+            ->getRepository(Game::class)
+            ->find($id);
+        if (empty($game)) {
+            return $this->createNotFoundException();
+        }
         if (empty($playerHash) || !$game->hasPlayer($playerHash)) {
             if ($game->isFull()) {
-                return $this->redirectToRoute('index');
+                return $this->createAccessDeniedException();
             }
+            $playerName = $request->toArray()["playerName"];
             $playerHash = $this->generatePlayerHash();
-            $game->addPlayer($playerHash);
+            $game->addPlayer($playerHash, $playerName);
             $this->getDoctrine()->getManager()->flush();
         }
-
         $response = $this->json($game);
         $response->headers->setCookie(new Cookie($this::COOKIE_KEY, $playerHash));
         return $response;
