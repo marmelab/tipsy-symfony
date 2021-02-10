@@ -2,6 +2,7 @@
 
 namespace App\Controller;
 
+use App\Dto\GameDto;
 use App\Entity\Game;
 use App\Services\GameService;
 use Doctrine\ORM\EntityManagerInterface;
@@ -33,7 +34,9 @@ class GameController extends AbstractController
         $this->entityManager->persist($game);
         $this->entityManager->flush();
 
-        $response = $this->json($game);
+
+        $response = $this->json(new GameDto($game));
+        $response->headers->set('Access-Control-Allow-Origin', '*');
 
         return $response;
     }
@@ -53,8 +56,11 @@ class GameController extends AbstractController
                 }
             }
         });
-
+        $games = array_map(function($game){
+            return new GameDto($game);
+        }, $games);
         $response = $this->json(array_values($games));
+        $response->headers->set('Access-Control-Allow-Origin', '*');
         return $response;
     }
 
@@ -73,7 +79,8 @@ class GameController extends AbstractController
             return $this->createNotFoundException();
         }
 
-        $response = $this->json($game);
+        $response = $this->json(new GameDto($game));
+        $response->headers->set('Access-Control-Allow-Origin', '*');
         return $response;
     }
 
@@ -94,7 +101,8 @@ class GameController extends AbstractController
         $game->addPlayer($playerName);
         $this->getDoctrine()->getManager()->flush();
         
-        $response = $this->json($game);
+        $response = $this->json(new GameDto($game));
+        $response->headers->set('Access-Control-Allow-Origin', '*');
         return $response;
     }
 

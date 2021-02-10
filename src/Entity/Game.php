@@ -415,4 +415,5 @@ class Game
     {
         return ($this->players[$this->getCurrentPlayer()]['name'] == $playerName);
     }
+
 }
