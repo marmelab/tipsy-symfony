@@ -15,7 +15,7 @@ class  GameDto{
 
     public function __construct(Game $game){
         $this->id = $game->id;
-        $this->players = array_values($game->players);
+        $this->players = PlayerDto::getPlayerDtos($game);
         $this->fallenPucks = array_values($game->fallenPucks);
         $this->pucks = array_values($game->getPucks());
     }
