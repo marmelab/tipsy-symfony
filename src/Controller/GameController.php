@@ -119,6 +119,9 @@ class GameController extends AbstractController
         return $this->redirectToRoute('game', ['id' => $game->getId()]);
     }
 
+    /**
+     * @Route("/game/{id}/tilt", name="tilt", methods={"POST"})
+     */
     public function tilt(int $id, Request $request)
     {
 
@@ -126,15 +129,27 @@ class GameController extends AbstractController
             ->getRepository(Game::class)
             ->find($id);
 
-        $action = $request->get('action');
-        if (!in_array($action, [Game::NORTH, Game::SOUTH, Game::EAST, Game::WEST])) {
+        $playerName = $request->toArray()["playerName"];
+        $direction = $request->toArray()["direction"];
+
+        //I don't want to tilt if it's not currentPlayer turn
+        if ($game->getCurrentPlayerName() != $playerName){
+            $response = $this->json(new GameDto($game));
+            $response->headers->set('Access-Control-Allow-Origin', '*');
+            return $response;
+        }
+
+        if (!in_array($direction, [Game::NORTH, Game::SOUTH, Game::EAST, Game::WEST])) {
             throw new BadRequestHttpException("Wrong action parameter");
         }
-        $this->gameService->tilt($game, $action);
+
+        $this->gameService->tilt($game, $direction);
 
         $this->entityManager->flush();
 
-        return $this->redirectToRoute('game', ['id' => $game->getId()]);
+        $response = $this->json(new GameDto($game));
+        $response->headers->set('Access-Control-Allow-Origin', '*');
+        return $response;
     }
 
 }

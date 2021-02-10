@@ -155,6 +155,14 @@ class Game
             }
         }
     }
+    public function getCurrentPlayerName(): string
+    {
+        foreach (array_keys($this->players) as $color) {
+            if ($this->players[$color]['current']) {
+                return $this->players[$color]['name'];
+            }
+        }
+    }
 
     public function setRemainingTurns(int $turns)
     {
