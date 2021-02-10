@@ -23,7 +23,7 @@ class  PuckDto{
                 array_push($pucks, 
                 new PuckDto(
                     $vertex->getValue()[Game::COLOR_KEY], 
-                    ["x"=>strval($position)[0],"y"=>strval($position)[1]],
+                    ["x"=>intval(strval($position)[0]),"y"=>intval(strval($position)[1])],
                     $vertex->getValue()[Game::FLIPPED_KEY]));
             }
         };
