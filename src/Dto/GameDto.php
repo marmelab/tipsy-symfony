@@ -17,6 +17,6 @@ class  GameDto{
         $this->id = $game->id;
         $this->players = PlayerDto::getPlayerDtos($game);
         $this->fallenPucks = array_values($game->fallenPucks);
-        $this->pucks = array_values($game->getPucks());
+        $this->pucks = PuckDto::getPucksDto($game);
     }
 }
