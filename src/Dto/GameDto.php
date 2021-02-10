@@ -9,6 +9,7 @@ class  GameDto{
     public $id;
     public $players;
     public $scores;
+    public $currentPlayer;
 
     public $pucks = [];
 
@@ -20,5 +21,6 @@ class  GameDto{
         $this->scores = $game->scores;
         $this->fallenPucks = array_values($game->fallenPucks);
         $this->pucks = PuckDto::getPucksDto($game);
+        $this->currentPlayer = $game->getCurrentPlayerName(); 
     }
 }
