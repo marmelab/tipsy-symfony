@@ -1,10 +1,1 @@
 
-replace:
-   path: /game/{id}/replacepuck
-   methods: POST
-   controller: App\Controller\GameController::replacePuck
-
-tilt:
-   path: /game/{id}/tilt
-   methods: POST
-   controller: App\Controller\GameController::tilt

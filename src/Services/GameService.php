@@ -68,7 +68,9 @@ class GameService
 
         $player = $game->getCurrentPlayer();
         $currentPlayerPucks = $game->getFallenPucks($player);
-
+        if($currentPlayerPucks==0 && $opponentPucks==0){
+            return;
+        }
         if ($opponentPucks > 0) {
             $player = $opponent;
         }
