@@ -29,7 +29,11 @@ class GameController extends AbstractController
     public function new(Request $request)
     {
         $playerName = $request->toArray()["playerName"];
+        $withBot = array_key_exists("withBot",$request->toArray()) && $request->toArray()["withBot"];
         $game = $this->gameService->newGame($playerName);
+        if ($withBot){
+            $game->addPlayer("bot");
+        }
 
         $this->entityManager->persist($game);
         $this->entityManager->flush();
