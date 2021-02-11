@@ -106,6 +106,9 @@ class GameController extends AbstractController
         return $response;
     }
 
+    /**
+     * @Route("/game/{id}/replace", name="replace", methods={"POST"})
+     */
     public function replacePuck(int $id, Request $request)
     {
 
@@ -116,7 +119,9 @@ class GameController extends AbstractController
 
         $this->entityManager->flush();
 
-        return $this->redirectToRoute('game', ['id' => $game->getId()]);
+        $response = $this->json(new GameDto($game));
+        $response->headers->set('Access-Control-Allow-Origin', '*');
+        return $response;
     }
 
     /**
