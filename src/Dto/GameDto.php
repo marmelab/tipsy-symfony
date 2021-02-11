@@ -10,6 +10,7 @@ class  GameDto{
     public $players;
     public $scores;
     public $currentPlayer;
+    public $remainingTurns;
 
     public $pucks = [];
 
@@ -21,6 +22,7 @@ class  GameDto{
         $this->scores = $game->scores;
         $this->fallenPucks = array_values($game->fallenPucks);
         $this->pucks = PuckDto::getPucksDto($game);
-        $this->currentPlayer = $game->getCurrentPlayerName(); 
+        $this->currentPlayer = $game->getCurrentPlayerName();
+        $this->remainingTurns = $game->getRemainingTurns();
     }
 }
