@@ -27,10 +27,13 @@ create-migration:
 migrate:
 	docker-compose run --rm symfony bash -ci 'symfony console doctrine:migrations:migrate' --no-interaction
 
+ssh:
+	ssh -i ${pem} ${user}@${host}
+  	
 deploy:
-	rsync --delete -r -e "ssh -i ${key}" --filter=':- .gitignore' \
+	rsync --delete -r -e "ssh -i ${pem}" --filter=':- .gitignore' \
 	./ ${user}@${host}:~/tipsy
-	ssh -i ${key} ${user}@${host} \
+	ssh -i ${pem} ${user}@${host} \
 	'cd tipsy &&\
 	make install &&\
 	make run'
