@@ -25,22 +25,22 @@ class GameService
     private $exits = array(array(1, -1), array(7, 1), array(-1, 5), array(5, 7));
     private $players = array(Game::RED, Game::BLUE);
 
-    public function newGame( string $playerName): Game
+    public function newGame( string $playerName, string $id): Game
     {
         $game = new Game(7, 7);
         $this->initEmptyBoard($game);
         $this->initObstacles($game);
         $this->initPucks($game);
         $this->initExits($game);
-        $this->initPlayers($game, $playerName);
+        $this->initPlayers($game, $playerName, $id);
         return $game;
     }
 
-    private function initPlayers(Game $game, string $name)
+    private function initPlayers(Game $game, string $name, string $id)
     {
         $firstPlayer = $this->players[rand(0, 1)];
         $game->setEmptyPlayers($this->players);
-        $game->setCurrentPlayer($firstPlayer, $name);
+        $game->setCurrentPlayer($firstPlayer, $name, $id);
         $game->setRemainingTurns(2);
     }
     private function initExits(Game $game)
