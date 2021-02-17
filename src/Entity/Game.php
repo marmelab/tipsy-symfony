@@ -143,9 +143,9 @@ class Game
     {
         return $this->id;
     }
-    public function setCurrentPlayer(string $color, string $name)
+    public function setCurrentPlayer(string $color, string $name, string $id )
     {
-        $this->players[$color] = [ "current" => true, "name" => $name];
+        $this->players[$color] = [ "current" => true, "name" => $name, "id"=>$id ];
     }
     public function getCurrentPlayer(): string
     {
@@ -163,7 +163,14 @@ class Game
             }
         }
     }
-
+    public function getCurrentPlayerId(): string
+    {
+        foreach (array_keys($this->players) as $color) {
+            if ($this->players[$color]['current']) {
+                return $this->players[$color]['id'];
+            }
+        }
+    }
     public function setRemainingTurns(int $turns)
     {
         $this->remainingTurns = $turns;
@@ -358,7 +365,7 @@ class Game
     public function setEmptyPlayers(array $players)
     {
         foreach ($players as $player) {
-            $this->players[$player] = ["name" => "", "current" => false];;
+            $this->players[$player] = ["name" => "", "current" => false,  "id" =>""];;
         }
     }
     private function switchPlayers()
@@ -403,11 +410,12 @@ class Game
         return true;
     }
 
-    public function addPlayer(string $playerName)
+    public function addPlayer(string $playerName, string $playerId)
     {
         foreach (array_keys($this->players) as $color) {
             if (!$this->players[$color]['name']) {
                 $this->players[$color]['name'] = $playerName;
+                $this->players[$color]['id'] = $playerId;
             }
         }
     }
