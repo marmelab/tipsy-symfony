@@ -145,7 +145,8 @@ class Game
     }
     public function setCurrentPlayer(string $color, string $name, string $id )
     {
-        $this->players[$color] = [ "current" => true, "name" => $name, "id"=>$id ];
+        $this->addPlayer($color, $name, $id);
+        $this->players[$color]["current"] = true;
     }
     public function getCurrentPlayer(): string
     {
@@ -416,6 +417,7 @@ class Game
             if (!$this->players[$color]['name']) {
                 $this->players[$color]['name'] = $playerName;
                 $this->players[$color]['id'] = $playerId;
+                $this->players[$color]['powerUps'] = ['beer'=>1,'wine'=>1,'whisky'=>1];
             }
         }
     }
