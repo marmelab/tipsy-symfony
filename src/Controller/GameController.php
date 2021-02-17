@@ -41,7 +41,6 @@ class GameController extends AbstractController
 
 
         $response = $this->json(new GameDto($game));
-        $response->headers->set('Access-Control-Allow-Origin', '*');
 
         return $response;
     }
@@ -65,7 +64,6 @@ class GameController extends AbstractController
             return new GameDto($game);
         }, $games);
         $response = $this->json(array_values($games));
-        $response->headers->set('Access-Control-Allow-Origin', '*');
         return $response;
     }
 
@@ -85,7 +83,6 @@ class GameController extends AbstractController
         }
 
         $response = $this->json(new GameDto($game));
-        $response->headers->set('Access-Control-Allow-Origin', '*');
         return $response;
     }
 
@@ -108,7 +105,6 @@ class GameController extends AbstractController
         $this->getDoctrine()->getManager()->flush();
         
         $response = $this->json(new GameDto($game));
-        $response->headers->set('Access-Control-Allow-Origin', '*');
         return $response;
     }
 
@@ -126,7 +122,6 @@ class GameController extends AbstractController
         $this->entityManager->flush();
 
         $response = $this->json(new GameDto($game));
-        $response->headers->set('Access-Control-Allow-Origin', '*');
         return $response;
     }
 
@@ -146,7 +141,6 @@ class GameController extends AbstractController
         //I don't want to tilt if it's not currentPlayer turn
         if ($game->getCurrentPlayerId() != $playerId){
             $response = $this->json(new GameDto($game));
-            $response->headers->set('Access-Control-Allow-Origin', '*');
             return $response;
         }
 
@@ -159,7 +153,6 @@ class GameController extends AbstractController
         $this->entityManager->flush();
 
         $response = $this->json(new GameDto($game));
-        $response->headers->set('Access-Control-Allow-Origin', '*');
         return $response;
     }
 
