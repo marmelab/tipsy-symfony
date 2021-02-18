@@ -17,7 +17,7 @@ class  PlayerDto{
         $this->name = $player["name"];
         $this->current = $player["current"];
         $this->id = $player["id"];
-        $this->powerUps = $player["powerUps"];
+        $this->powerUps = $player[Game::POWERUPS_KEY];
     }
     public static function getPlayerDtos(Game $game){
         $players = array();
