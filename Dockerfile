@@ -12,4 +12,9 @@ RUN echo "$(curl -sS https://composer.github.io/installer.sig) -" > composer-set
     && chmod +x composer.phar && mv composer.phar /usr/local/bin/composer
 
 COPY ./ /app
+
+RUN cd /app \
+    && composer install \
+    && symfony console doctrine:schema:update --force 
+    
 WORKDIR /app
