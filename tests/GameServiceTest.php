@@ -10,7 +10,7 @@ class GameServiceTest extends TestCase
     {
         // GIVEN
         $gameService = new GameService();
-        $game = $gameService->newGame(hash('sha256', uniqid(), false),"bobby");
+        $game = $gameService->newGame("bobby",hash('sha256', uniqid(), false));
         $this->assertEquals($game->getCellType(3, 3)[Game::COLOR_KEY], Game::BLACK);
         // WHEN
         $gameService->tilt($game, Game::EAST);
@@ -25,7 +25,7 @@ class GameServiceTest extends TestCase
     {
         // GIVEN
         $gameService = new GameService();
-        $game = $gameService->newGame(hash('sha256', uniqid(), false),"bobby");
+        $game = $gameService->newGame("bobby",hash('sha256', uniqid(), false));
         $this->assertEquals($game->getCellType(3, 3)[Game::COLOR_KEY], Game::BLACK);
         // WHEN
         $gameService->tilt($game, Game::WEST);
@@ -40,7 +40,7 @@ class GameServiceTest extends TestCase
     {
         // GIVEN
         $gameService = new GameService();
-        $game = $gameService->newGame(hash('sha256', uniqid(), false),"bobby");
+        $game = $gameService->newGame("bobby",hash('sha256', uniqid(), false));
         $this->assertEquals($game->getCellType(3, 3)[Game::COLOR_KEY], Game::BLACK);
         // WHEN
         try {
@@ -60,7 +60,7 @@ class GameServiceTest extends TestCase
     {
         // GIVEN
         $gameService = new GameService();
-        $game = $gameService->newGame(hash('sha256', uniqid(), false),"bobby");
+        $game = $gameService->newGame("bobby",hash('sha256', uniqid(), false));
         $this->assertEquals($game->getCellType(3, 3)[Game::COLOR_KEY], Game::BLACK);
         // WHEN
         $gameService->tilt($game, Game::NORTH);
@@ -79,7 +79,7 @@ class GameServiceTest extends TestCase
     {
         // GIVEN
         $gameService = new GameService();
-        $game = $gameService->newGame(hash('sha256', uniqid(), false),"bobby");
+        $game = $gameService->newGame("bobby",hash('sha256', uniqid(), false));
 
         // THEN
         $this->assertNotNull($game->getCurrentPlayer());
@@ -91,7 +91,7 @@ class GameServiceTest extends TestCase
     {
         // GIVEN
         $gameService = new GameService();
-        $game = $gameService->newGame(hash('sha256', uniqid(), false),"bobby");
+        $game = $gameService->newGame("bobby",hash('sha256', uniqid(), false));
 
         // THEN
         $this->assertNotNull($game->getRemainingTurns());
@@ -102,7 +102,7 @@ class GameServiceTest extends TestCase
     {
         // GIVEN
         $gameService = new GameService();
-        $game = $gameService->newGame(hash('sha256', uniqid(), false),"bobby");
+        $game = $gameService->newGame("bobby",hash('sha256', uniqid(), false));
         $remainingTurns = $game->getRemainingTurns();
 
         // WHEN
@@ -116,7 +116,7 @@ class GameServiceTest extends TestCase
     {
         // GIVEN
         $gameService = new GameService();
-        $game = $gameService->newGame(hash('sha256', uniqid(), false),"bobby");
+        $game = $gameService->newGame("bobby",hash('sha256', uniqid(), false));
         $remainingTurns = $game->getRemainingTurns();
         $currentPlayer = $game->getCurrentPlayer();
 
@@ -134,7 +134,7 @@ class GameServiceTest extends TestCase
     {
         // GIVEN
         $gameService = new GameService();
-        $game = $gameService->newGame(hash('sha256', uniqid(), false),"bobby");
+        $game = $gameService->newGame("bobby",hash('sha256', uniqid(), false));
         $this->assertEquals($game->getCellType(3, 3)[Game::COLOR_KEY], Game::BLACK);
         // WHEN
         $gameService->tilt($game, Game::NORTH);
@@ -150,7 +150,7 @@ class GameServiceTest extends TestCase
     {
         // GIVEN
         $gameService = new GameService();
-        $game = $gameService->newGame(hash('sha256', uniqid(), false),"bobby");
+        $game = $gameService->newGame("bobby",hash('sha256', uniqid(), false));
         $this->assertEquals($game->getCellType(3, 3)[Game::COLOR_KEY], Game::BLACK);
         // WHEN
         $gameService->tilt($game, Game::NORTH);
@@ -164,7 +164,7 @@ class GameServiceTest extends TestCase
     {
         // GIVEN
         $gameService = new GameService();
-        $game = $gameService->newGame(hash('sha256', uniqid(), false),"bobby");
+        $game = $gameService->newGame("bobby",hash('sha256', uniqid(), false));
         $this->assertEquals($game->getCellType(3, 3)[Game::COLOR_KEY], Game::BLACK);
         $currentPlayer = $game->getCurrentPlayer();
         // WHEN
@@ -185,7 +185,7 @@ class GameServiceTest extends TestCase
     {
         // GIVEN
         $gameService = new GameService();
-        $game = $gameService->newGame(hash('sha256', uniqid(), false),"bobby");
+        $game = $gameService->newGame("bobby",hash('sha256', uniqid(), false));
         $this->assertEquals($game->getCellType(3, 3)[Game::COLOR_KEY], Game::BLACK);
         // WHEN
         $gameService->tilt($game, Game::NORTH);
@@ -196,5 +196,93 @@ class GameServiceTest extends TestCase
         // THEN
         $this->assertEquals(1, $game->getScore(Game::BLUE));
         $this->assertEquals(0, $game->getScore(Game::RED));
+    } 
+    
+    public function test_we_should_increment_remaining_turns_when_using_beer_power_up()
+    {
+        // GIVEN
+        $gameService = new GameService();
+        $game = $gameService->newGame("bobby",hash('sha256', uniqid(), false));
+        $this->assertEquals(2, $game->remainingTurns);
+
+        // WHEN
+        $gameService->usePowerUp($game, Game::BEER);
+
+        // THEN
+        $this->assertEquals(3, $game->remainingTurns);
+    }    
+    
+    public function test_we_should_do_nothing_when_using_beer_power_up_and_no_beers_remain()
+    {
+        // GIVEN
+        $gameService = new GameService();
+        $game = $gameService->newGame("bobby",hash('sha256', uniqid(), false));
+        $game->players[Game::RED]["powerUps"][Game::BEER] = 0;
+
+        // WHEN
+        $gameService->usePowerUp($game, Game::BEER);
+
+        // THEN
+        $this->assertEquals(2, $game->remainingTurns);
+    } 
+
+    public function test_we_should_decrement_beers_when_using_beer_power_up()
+    {
+        // GIVEN
+        $gameService = new GameService();
+        $game = $gameService->newGame("bobby",hash('sha256', uniqid(), false));
+        $this->assertEquals(2, $game->remainingTurns);
+        $this->assertEquals($game->players[Game::RED]["powerUps"][Game::BEER],1);
+
+        // WHEN
+        $gameService->usePowerUp($game, Game::BEER);
+
+        // THEN
+        $this->assertEquals($game->players[Game::RED]["powerUps"][Game::BEER],0);
+    }    
+    
+    public function test_we_should_switch_player_color_when_using_whisky()
+    {
+        // GIVEN
+        $gameService = new GameService();
+        $game = $gameService->newGame("bobby",hash('sha256', uniqid(), false));
+        $game->addPlayer("joe", hash('sha256', uniqid(), false));
+        $this->assertEquals($game->players[Game::RED]["name"], "bobby");
+        $this->assertEquals($game->players[Game::BLUE]["name"], "joe");
+
+        // WHEN
+        $gameService->usePowerUp($game, Game::WHISKY);
+        
+        // THEN
+        $this->assertEquals($game->players[Game::BLUE]["name"], "bobby");
+        $this->assertEquals($game->players[Game::RED]["name"], "joe");
+        $this->assertEquals($game->players[Game::BLUE]["powerUps"][Game::WHISKY],0);
+        $this->assertEquals($game->players[Game::RED]["powerUps"][Game::WHISKY],1);
+    }   
+
+    public function test_we_should_do_nothing_when_using_whisky_power_up_and_no_whisky_remain()
+    {
+        // GIVEN
+        $gameService = new GameService();
+        $game = $gameService->newGame("bobby",hash('sha256', uniqid(), false));
+        $game->players[Game::RED]["powerUps"][Game::WHISKY] = 0;
+
+        // WHEN
+        $gameService->usePowerUp($game, Game::WHISKY);
+
+        // THEN
+        $this->assertEquals($game->players[Game::RED]["name"], "bobby");
+    } 
+
+
+    public function test_it_should_create_empty_game_with_the_right_playerName()
+    {
+        // GIVEN
+        $gameService = new GameService();
+        $game = $gameService->newGame("bobby",hash('sha256', uniqid(), false));
+        $gameService->tilt($game, Game::EAST);
+
+        // THEN
+        $this->assertEquals($game->players[Game::RED]["name"], "bobby");
     }
 }

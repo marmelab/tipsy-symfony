@@ -38,11 +38,11 @@ class GameService
 
     private function initPlayers(Game $game, string $name, string $id)
     {
-        $firstPlayer = $this->players[rand(0, 1)];
         $game->setEmptyPlayers($this->players);
-        $game->setCurrentPlayer($firstPlayer, $name, $id);
+        $game->setCurrentPlayer($name, $id);
         $game->setRemainingTurns(2);
     }
+    
     private function initExits(Game $game)
     {
         foreach ($this->exits as $exit) {
@@ -108,5 +108,24 @@ class GameService
     public function tilt(Game $game, String $direction)
     {
         $game->tilt($direction);
+    }
+
+    public function usePowerUp(Game $game, String $powerUp){
+        if ($game->getCurrentPlayerPowerUps()[$powerUp] == 0) {
+            return;
+        }
+        switch ($powerUp) {
+            case Game::BEER:
+                $game->remainingTurns += 1;
+                $game->decrementPowerUp($powerUp);
+                break;
+            case Game::WHISKY:
+                $game->switchColor();
+                $game->decrementPowerUp($powerUp);
+                break;
+            default:
+                # code...
+                break;
+        }
     }
 }

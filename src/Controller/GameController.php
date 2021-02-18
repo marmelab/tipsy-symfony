@@ -156,4 +156,27 @@ class GameController extends AbstractController
         return $response;
     }
 
+    /**
+     * @Route("/game/{id}/use/{powerUp}", name="usePowerUp", methods={"POST"})
+     */
+    public function usePowerUp(int $id, string $powerUp, Request $request)
+    {
+
+        $game = $this->entityManager
+            ->getRepository(Game::class)
+            ->find($id);
+
+        $playerId = $request->toArray()["playerId"];
+
+        $isCurrentPlayer = $game->getCurrentPlayerId() == $playerId;
+        if (!$isCurrentPlayer){
+            $response = $this->json(new GameDto($game));
+            return $response;
+        }
+        $this->gameService->usePowerUp($game, $powerUp);
+        $this->entityManager->flush();
+
+        $response = $this->json(new GameDto($game));
+        return $response;
+    }
 }

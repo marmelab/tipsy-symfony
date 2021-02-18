@@ -13,6 +13,7 @@ class Game
 {
     const COLOR_KEY = "color";
     const FLIPPED_KEY = "flipped";
+    const POWERUPS_KEY = "powerUps";
     const WEST = "west";
     const EAST = "east";
     const NORTH = "north";
@@ -22,6 +23,8 @@ class Game
     const BLUE = "blue";
     const BLACK = "black";
     const EXIT = "exit";
+    const BEER = "beer";
+    const WHISKY = "whisky";
 
     /**
      * @ORM\Id()
@@ -143,9 +146,10 @@ class Game
     {
         return $this->id;
     }
-    public function setCurrentPlayer(string $color, string $name, string $id )
+    public function setCurrentPlayer(string $name, string $id )
     {
-        $this->players[$color] = [ "current" => true, "name" => $name, "id"=>$id ];
+        $color = $this->addPlayer($name, $id);
+        $this->players[$color]["current"] = true;
     }
     public function getCurrentPlayer(): string
     {
@@ -168,6 +172,14 @@ class Game
         foreach (array_keys($this->players) as $color) {
             if ($this->players[$color]['current']) {
                 return $this->players[$color]['id'];
+            }
+        }
+    }    
+    public function getCurrentPlayerPowerUps(): array
+    {
+        foreach (array_keys($this->players) as $color) {
+            if ($this->players[$color]['current']) {
+                return $this->players[$color][Game::POWERUPS_KEY];
             }
         }
     }
@@ -365,7 +377,8 @@ class Game
     public function setEmptyPlayers(array $players)
     {
         foreach ($players as $player) {
-            $this->players[$player] = ["name" => "", "current" => false,  "id" =>""];;
+            $this->players[$player] = ["name" => "", "current" => false,  "id" =>"", 
+            Game::POWERUPS_KEY=>[Game::BEER=>0, Game::WHISKY=>0]];
         }
     }
     private function switchPlayers()
@@ -410,12 +423,18 @@ class Game
         return true;
     }
 
+    public function decrementPowerUp($powerUp){
+        $this->players[$this->getCurrentPlayer()][Game::POWERUPS_KEY][$powerUp] -= 1;
+    }
+
     public function addPlayer(string $playerName, string $playerId)
     {
         foreach (array_keys($this->players) as $color) {
             if (!$this->players[$color]['name']) {
                 $this->players[$color]['name'] = $playerName;
                 $this->players[$color]['id'] = $playerId;
+                $this->players[$color][Game::POWERUPS_KEY] = [Game::BEER=>1,Game::WHISKY=>1];
+                return $color;
             }
         }
     }
@@ -430,6 +449,12 @@ class Game
     public function itsMyTurn($playerName)
     {
         return ($this->players[$this->getCurrentPlayer()]['name'] == $playerName);
+    }
+
+    public function switchColor(){
+        $bluePlayer = $this->players[Game::BLUE];
+        $this->players[Game::BLUE] = $this->players[Game::RED];
+        $this->players[Game::RED] = $bluePlayer;
     }
 
 }
